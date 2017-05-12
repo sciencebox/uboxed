@@ -1,0 +1,57 @@
+
+Box-in-the-box
+--------------
+
+Self-contained, containerized demo for next-generation cloud storage and computing services for scientific and general-purpose use:
+
+ - CERNBox: https://cernbox.cern.ch
+ - EOS: https://eos.cern.ch
+ - SWAN: https://swan.cern.ch
+
+Packaging by:
+
+ - Enrico Bocchi, Hugo Gonzalez Labrador, Jozsef Makai, Jakub T. Moscicki
+
+How to use:
+
+ 1. Install required software on the Centos7 host or check [*] for other OSes
+     
+    ./SetupInstall-Centos7.sh
+    
+
+ 2. Setup and initialize all services:
+
+    ./SetupHost.sh
+
+
+ 3. Quick test of the services:
+
+    ./TestHost.sh
+
+
+ 4. Go to: https://yourhost
+ 
+Enjoy and give feedback to CERN/IT.
+
+For technical documentation, tips and tricks see: README.TECHNICAL
+
+---
+
+[*] Host OS Support
+
+We test this package on Centos7 hosts. For other OSes you may need some extra work (and sweat or tears). 
+We are happy to hear from you and eventually include instructions for other OSes.
+
+Required software on the host:
+
+  - install wget, fuse
+  - install docker (version 17.03.1-ce or greater)
+  - install docker-compose (version 1.11.2 or greater)
+
+---
+
+Copyright 2017, CERN.
+
+AGPL License (http://www.gnu.org/licenses/agpl-3.0.html)
+
+
