@@ -172,6 +172,7 @@ for i in ${SYS_IMAGES[*]};
 do
         docker pull "$SYSIM_REPO":"$i"
         docker tag "$SYSIM_REPO":"$i" "$i":latest
+	docker rmi "$SYSIM_REPO":"$i"
 done
 }
 
