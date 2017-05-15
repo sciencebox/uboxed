@@ -20,6 +20,7 @@ NOTEBOOK_IMAGES=(cernphsft/systemuser:v2.9) # , jupyter/minimal-notebook)
 SYS_IMAGES=(cernbox cernboxgateway eos-controller eos-storage openldap selftest swan_cvmfs swan_eos-fuse swan_jupyterhub)
 SYSIM_LOGIN="https://gitlab-registry.cern.ch"
 SYSIM_REPO="gitlab-registry.cern.ch/cernbox/boxed"
+SYSIM_PRIVATE=true
 
 # LDAP volume names
 LDAP_DB="openldap_database"
@@ -167,7 +168,13 @@ done
 
 # All the other system components
 function fetch_system_component_images {
-docker login $SYSIM_LOGIN
+echo ""
+echo "Pulling system component images..."
+
+if [ $SYSIM_PRIVATE ]; then
+	echo "Log in to remote repository"
+	docker login $SYSIM_LOGIN
+fi
 for i in ${SYS_IMAGES[*]};
 do
         docker pull "$SYSIM_REPO":"$i"
@@ -222,5 +229,4 @@ touch "$HOST_FOLDER"/cernbox-lock
 echo "Locking cernboxgateway -- Needs EOS storage"
 touch "$HOST_FOLDER"/cernboxgateway-lock
 }
-
 
