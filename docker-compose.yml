@@ -25,7 +25,7 @@ services:
     environment:
       LDAP_LOG_LEVEL: none      # See: http://www.openldap.org/doc/admin24/slapdconf2.html
                                 # Default log level is 256 (0x100 stats)
-      #LDAP_TLS_VERIFY_CLIENT: try
+      LDAP_TLS_VERIFY_CLIENT: try
 
   # Add demo users on the LDAP server
   ldap-ldapadd:
