@@ -1,0 +1,146 @@
+# docker-compose configuration file
+version: "2"
+
+services:
+
+  # JupyterHub with CERN customizations
+  jupyterhub:
+    image: swan_jupyterhub
+    container_name: jupyterhub
+    ports:
+      - 4443:443
+    # Enable to spawn new containers from the inside of the JupyterHub container
+    # by exposing the Docker socket of the host machine
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+
+  # LDAP for users authentication
+  # See: https://github.com/osixia/docker-openldap
+  ldap:
+    image: openldap
+    container_name: openldap
+    volumes:
+      - openldap_database:/var/lib/ldap
+      - openldap_config:/etc/ldap/slapd.d
+    environment:
+      LDAP_LOG_LEVEL: none      # See: http://www.openldap.org/doc/admin24/slapdconf2.html
+                                # Default log level is 256 (0x100 stats)
+      #LDAP_TLS_VERIFY_CLIENT: try
+
+  # Add demo users on the LDAP server
+  ldap-ldapadd:
+    image: openldap
+    container_name: openldap-ldapadd
+    depends_on:
+      - ldap
+    links:
+      - ldap
+    volumes:
+      - ${HOST_FOLDER}:${HOST_FOLDER}
+    entrypoint: bash /openldap_addusers.sh
+
+  # CVMFS software repository
+  # Single-user' Jupyter servers need to access CVMFS for additional Kernels (e.g., ROOT C++, R) and software packages.
+  cvmfs:
+    image: swan_cvmfs
+    container_name: cvmfs
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse
+    volumes:
+      - ${CVMFS_FOLDER}:/cvmfs:shared
+
+  # EOS Client with Fuse mount
+  eos-fuse:
+    image: swan_eos-fuse
+    container_name: eos-fuse
+    hostname: eos-fuse
+    domainname: demonet
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse
+    pid: host
+    volumes:
+      - ${EOS_FOLDER}:/eos:shared
+      - ${HOST_FOLDER}:${HOST_FOLDER}
+
+  # EOS Storage 
+  # This container spawns all the EOS core containers, i.e., MGM, MQ, FST, ...
+  # and triggers the fuse mount from eos-fuse container
+  eos-controller:
+    image: eos-controller
+    container_name: eos-controller
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ${HOST_FOLDER}:${HOST_FOLDER}
+
+  # CERNBox
+  cernbox:
+    image: cernbox
+    container_name: cernbox
+    ports:
+      - 80:80
+    volumes:
+      - ${HOST_FOLDER}:${HOST_FOLDER}
+    # Setting environment variable to fill cernbox.php.template
+    environment:
+      BOX_HOSTNAME: ${BOX_HOSTNAME}
+
+  # CERNBox gateway
+  cernboxgateway:
+    image: cernboxgateway
+    container_name: cernboxgateway
+    ports:
+      - 443:443
+    volumes:
+      - ${HOST_FOLDER}:${HOST_FOLDER}
+
+
+networks:
+  default:
+    external:
+      name: demonet
+
+volumes:
+  openldap_database:
+    external:
+      name: openldap_database
+
+  openldap_config:
+    external:
+      name: openldap_config
+
+  eos-fst1:
+    external:
+      name: eos-fst1
+
+  eos-fst2:
+    external:
+      name: eos-fst2
+  
+  eos-fst3:
+    external:
+      name: eos-fst3
+  
+  eos-fst4:
+    external:
+      name: eos-fst4
+  
+  eos-fst5:
+    external:
+      name: eos-fst5
+  
+  eos-fst6:
+    external:
+      name: eos-fst6
+  
+  eos-mgm:
+    external:
+      name: eos-mgm 
+  
+  eos-mq:
+    external:
+      name: eos-mq
+
