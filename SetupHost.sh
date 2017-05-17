@@ -30,12 +30,19 @@ set_the_locks
 
 # Run via Docker Compose
 echo ""
-echo "Run via docker-compose"
+echo "Run via docker-compose..."
 docker-compose up -d
 
+echo
+echo "Configuring..."
+while [[ -f "$HOST_FOLDER"/usercontrol-lock ]]
+do
+        sleep 5        
+done
+
 echo ""
+echo "Done!"
 echo "Access to log files: docker-compose logs -f"
-echo "[Done]"
 
 
 

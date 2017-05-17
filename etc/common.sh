@@ -228,5 +228,7 @@ echo "Locking cernbox -- Needs EOS storage"
 touch "$HOST_FOLDER"/cernbox-lock
 echo "Locking cernboxgateway -- Needs EOS storage"
 touch "$HOST_FOLDER"/cernboxgateway-lock
+
+touch "$HOST_FOLDER"/usercontrol-lock
 }
 
