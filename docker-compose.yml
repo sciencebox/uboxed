@@ -80,8 +80,8 @@ services:
   cernbox:
     image: cernbox
     container_name: cernbox
-    ports:
-      - 80:80
+    #ports:
+    #  - 80:80
     volumes:
       - ${HOST_FOLDER}:${HOST_FOLDER}
     # Setting environment variable to fill cernbox.php.template
@@ -93,9 +93,12 @@ services:
     image: cernboxgateway
     container_name: cernboxgateway
     ports:
+      - 80:80
       - 443:443
     volumes:
       - ${HOST_FOLDER}:${HOST_FOLDER}
+    environment:
+      BOX_HOSTNAME: ${BOX_HOSTNAME}
 
 
 networks:
