@@ -19,7 +19,8 @@ export DOCKER_NETWORK_NAME="demonet"
 NOTEBOOK_IMAGES=(cernphsft/systemuser:v2.9) # , jupyter/minimal-notebook)
 SYS_IMAGES=(cernbox cernboxgateway eos-controller eos-storage openldap swan_cvmfs swan_eos-fuse swan_jupyterhub)
 SYSIM_LOGIN="https://gitlab-registry.cern.ch"
-SYSIM_REPO="gitlab-registry.cern.ch/cernbox/boxed"
+#SYSIM_REPO="gitlab-registry.cern.ch/cernbox/boxed"
+SYSIM_REPO="gitlab-registry.cern.ch/cernbox/boxedhub"
 SYSIM_PRIVATE=true
 
 # LDAP volume names
