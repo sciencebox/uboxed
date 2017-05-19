@@ -2,19 +2,18 @@
 Box-in-the-box
 --------------
 
+https://cernbox.cern.ch/cernbox/doc/boxed
+
 Self-contained, containerized demo for next-generation cloud storage and computing services for scientific and general-purpose use:
 
  - CERNBox: https://cernbox.cern.ch
  - EOS: https://eos.cern.ch
  - SWAN: https://swan.cern.ch
 
-Packaging by:
+Packaging by: Enrico Bocchi, Hugo Gonzalez Labrador, Jozsef Makai, Jakub T. Moscicki
 
- - Enrico Bocchi, Hugo Gonzalez Labrador, Jozsef Makai, Jakub T. Moscicki
-
-Project page: http://cernbox.cern.ch/cernbox/doc/boxed
-
-Quick setup:
+Quick setup
+-----------
 
  1. Install required software on the Centos7 host or check [*] for other OSes
      
