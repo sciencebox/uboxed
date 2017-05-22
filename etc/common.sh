@@ -213,7 +213,12 @@ docker volume inspect $EOS_MQ >/dev/null 2>&1 || docker volume create --name $EO
 docker volume inspect $EOS_MGM >/dev/null 2>&1 || docker volume create --name $EOS_MGM
 for i in {1..6}
 do
+    # Metadata containers
     EOS_FST=$EOSSTORAGE_HEADING$EOSSTORAGE_FST_NAME$i
+    docker volume inspect $EOS_FST >/dev/null 2>&1 || docker volume create --name $EOS_FST
+
+    # User data conainers
+    EOS_FST="$EOS_FST"_userdata
     docker volume inspect $EOS_FST >/dev/null 2>&1 || docker volume create --name $EOS_FST
 done
 }
