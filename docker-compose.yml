@@ -122,26 +122,44 @@ volumes:
   eos-fst1:
     external:
       name: eos-fst1
+  eos-fst1_userdata:
+    external:
+      name: eos-fst1_userdata
 
   eos-fst2:
     external:
       name: eos-fst2
-  
+  eos-fst2_userdata:
+    external:
+      name: eos-fst2_userdata
+
   eos-fst3:
     external:
       name: eos-fst3
+  eos-fst3_userdata:
+    external:
+      name: eos-fst3_userdata
   
   eos-fst4:
     external:
       name: eos-fst4
-  
+  eos-fst4_userdata:
+    external:
+      name: eos-fst4_userdata
+
   eos-fst5:
     external:
       name: eos-fst5
-  
+  eos-fst5_userdata:
+    external:
+      name: eos-fst5_userdata
+
   eos-fst6:
     external:
       name: eos-fst6
+  eos-fst6_userdata:
+    external:
+      name: eos-fst6_userdata
   
   eos-mgm:
     external:
