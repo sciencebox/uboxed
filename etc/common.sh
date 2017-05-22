@@ -139,11 +139,11 @@ sleep 1
 for i in `ls $CVMFS_FOLDER`
 do
         fusermount -u $CVMFS_FOLDER/$i
-        #umount -l $CVMFS_FOLDER/$i
 done
+fusermount -u $CVMFS_FOLDER
 fusermount -u $EOS_FOLDER
 sleep 1
-rm -rf $HOST_FOLDER 2>/dev/null
+rm -rf $HOST_FOLDER #2>/dev/null
 echo "Done."
 }
 
