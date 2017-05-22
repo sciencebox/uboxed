@@ -153,6 +153,14 @@ echo ""
 echo "Initializing folders..."
 mkdir -p $HOST_FOLDER
 touch "$HOST_FOLDER"/DO_NOT_WRITE_ANY_FILE_HERE
+
+# Explicitly set CVMFS and EOS folders as shared
+for i in $CVMFS_FOLDER $EOS_FOLDER
+do
+	mkdir -p $i
+	mount --bind $i $i
+	mount --make-shared $i
+done
 }
 
 

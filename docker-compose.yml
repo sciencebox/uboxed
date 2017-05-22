@@ -48,6 +48,8 @@ services:
       - SYS_ADMIN
     devices:
       - /dev/fuse
+    security_opt:
+      - apparmor: unconfined
     volumes:
       - ${CVMFS_FOLDER}:/cvmfs:shared
 
@@ -62,6 +64,8 @@ services:
     devices:
       - /dev/fuse
     pid: host
+    security_opt:
+      - apparmor: unconfined
     volumes:
       - ${EOS_FOLDER}:/eos:shared
       - ${HOST_FOLDER}:${HOST_FOLDER}
