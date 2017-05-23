@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# ----- Install the required software on the host ----- #
+install_software()
+{
+	apt-get install \
+			wget \
+			git \
+			fuse
+
+	echo "Installing docker..."
+	wget -q https://get.docker.com -O /tmp/getdocker.sh
+	mkdir -p /var/lib/docker
+	bash /tmp/getdocker.sh
+	rm /tmp/getdocker.sh
+
+	echo "Installing docker-compose..."
+	wget -q https://github.com/docker/compose/releases/download/1.12.0/docker-compose-`uname -s`-`uname -m` -O /usr/local/bin/docker-compose
+	sudo chmod +x /usr/local/bin/docker-compose
+
+	echo "Starting docker daemon..."
+	service docker start
+	docker --version
+	docker-compose --version
+}
+
+
+# Warning messages about installation
+# Raise warning about software installation
+echo ""
+echo "The following software has to be installed or updated:"
+echo -e "\t- wget"
+echo -e "\t- fuse"
+echo -e "\t- git"
+echo -e "\t- docker (version 17.03.1-ce or greater)"
+echo -e "\t- docker-compose (version 1.11.2 or greater)"
+echo ""
+read -r -p "Do you want to proceed with the installation [y/N] " response
+case "$response" in
+    [yY]) 
+		echo "Installing required software..."
+		install_software
+        ;;
+    *)
+        ;;
+esac
+
+

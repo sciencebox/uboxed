@@ -15,10 +15,14 @@ Packaging by: Enrico Bocchi, Hugo Gonzalez Labrador, Jozsef Makai, Jakub T. Mosc
 Quick setup
 -----------
 
- 1. Install required software on the Centos7 host or check [*] for other OSes
-     
-    ./SetupInstall-Centos7.sh
-    
+ 1. Install required software on the host:
+
+    For CentOS7:	./SetupInstall-Centos7.sh
+
+    For Ubuntu:		./SetupInstall-Ubuntu.sh
+
+    Please check [*] for other OSes.
+
 
  2. Setup and initialize all services:
 
@@ -31,7 +35,8 @@ Quick setup
 
 
  4. Go to: https://yourhost
- 
+
+
 Enjoy and give feedback to CERN/IT.
 
 For technical documentation, tips and tricks see: README.TECHNICAL
@@ -40,7 +45,7 @@ For technical documentation, tips and tricks see: README.TECHNICAL
 
 [*] Host OS Support
 
-We test this package on Centos7 hosts. For other OSes you may need some extra work (and sweat or tears). 
+We test this package on CentOS7 and Ubuntu (from 14.04) hosts. For other OSes you may need some extra work (and sweat or tears). 
 We are happy to hear from you and eventually include instructions for other OSes.
 
 Required software on the host:
