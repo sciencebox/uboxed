@@ -13,6 +13,10 @@ services:
     # by exposing the Docker socket of the host machine
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
+    environment:
+      DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME}
+      CVMFS_FOLDER: ${CVMFS_FOLDER}
+      EOS_FOLDER: ${EOS_FOLDER}
 
   # LDAP for users authentication
   # See: https://github.com/osixia/docker-openldap
@@ -37,6 +41,8 @@ services:
       - ldap
     volumes:
       - ${HOST_FOLDER}:${HOST_FOLDER}
+    environment:
+      HOST_FOLDER: ${HOST_FOLDER}
     entrypoint: bash /openldap_addusers.sh
 
   # CVMFS software repository
@@ -69,6 +75,8 @@ services:
     volumes:
       - ${EOS_FOLDER}:/eos:shared
       - ${HOST_FOLDER}:${HOST_FOLDER}
+    environment:
+      HOST_FOLDER: ${HOST_FOLDER}
 
   # EOS Storage 
   # This container spawns all the EOS core containers, i.e., MGM, MQ, FST, ...
@@ -79,6 +87,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - ${HOST_FOLDER}:${HOST_FOLDER}
+    environment:
+      HOST_FOLDER: ${HOST_FOLDER}
 
   # CERNBox
   cernbox:
@@ -88,9 +98,9 @@ services:
     #  - 80:80
     volumes:
       - ${HOST_FOLDER}:${HOST_FOLDER}
-    # Setting environment variable to fill cernbox.php.template
     environment:
-      BOX_HOSTNAME: ${BOX_HOSTNAME}
+      BOX_HOSTNAME: ${BOX_HOSTNAME} # needed to fill cernbox.php.template
+      HOST_FOLDER: ${HOST_FOLDER}
 
   # CERNBox gateway
   cernboxgateway:
@@ -102,13 +112,15 @@ services:
     volumes:
       - ${HOST_FOLDER}:${HOST_FOLDER}
     environment:
-      BOX_HOSTNAME: ${BOX_HOSTNAME}
+      BOX_HOSTNAME: ${BOX_HOSTNAME} # needed to set EOS_NGINX_HOSTNAME in /etc/sysconfig/nginx
+      HOST_FOLDER: ${HOST_FOLDER}
 
 
 networks:
   default:
     external:
       name: demonet
+
 
 volumes:
   openldap_database:
