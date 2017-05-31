@@ -117,10 +117,17 @@ esac
 function stop_and_remove_containers {
 # WARNING: This is not going to work in case a single-user server is still running, e.g., jupyter-userN
 #          Single-user's servers keep CVMFS and EOS locked due to internal mount
+
 echo ""
-echo "Removing containers..."
-docker stop jupyterhub openldap openldap-ldapadd cvmfs eos-fuse cernbox cernboxgateway 2>/dev/null
-docker rm -f jupyterhub openldap openldap-ldapadd cvmfs eos-fuse cernbox cernboxgateway 2>/dev/null
+echo "Removing existing containers (if any)..."
+# Stop the containers managed by docker-compose (and remove dangling volumes)
+if [ -z $1 ]; then
+	docker-compose down -v
+else
+	docker-compose -f $1 down -v
+fi
+#docker stop jupyterhub openldap openldap-ldapadd cvmfs eos-fuse cernbox cernboxgateway 2>/dev/null
+#docker rm -f jupyterhub openldap openldap-ldapadd cvmfs eos-fuse cernbox cernboxgateway 2>/dev/null
 
 # NOTE: Containers for EOS storage are not managed by docker-compose
 #       They need to be stopped and removed manually
