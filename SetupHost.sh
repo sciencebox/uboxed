@@ -26,6 +26,7 @@ volumes_for_ldap
 fetch_singleuser_notebook_image
 fetch_system_component_images
 check_to_have_all_images
+check_ports_availability
 set_the_locks
 
 

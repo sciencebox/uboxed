@@ -4,8 +4,9 @@
 
 # ----- Variables ----- #
 # Host properties 
+export HTTP_PORT=80
+export HTTPS_PORT=443
 export BOX_HOSTNAME=`hostname --fqdn`
-
 
 # Temporary folder on the host for deployment orchestration and fuse mounts
 export HOST_FOLDER="/tmp/SWAN-in-Docker"
@@ -201,7 +202,6 @@ done
 }
 
 # Check to have fetched all the images
-
 function check_to_have_images {
 # Contrast two arrays checking that all elements of the first appear in the second one
 # Input: $1==required_images (as array)   $2==available_images (as array)
@@ -227,8 +227,6 @@ function check_to_have_images {
         done
 }
 
-
-
 function check_to_have_all_images {
         echo ""
         echo "Check to have all the required images..."
@@ -242,6 +240,25 @@ function check_to_have_all_images {
         read -r -a LOCAL_IMAGES <<< `docker image ls | tail -n+2 | awk '{print $1":"$2}' | tr '\n' ' '`
         check_to_have_images NOTEBOOK_IMAGES[@] LOCAL_IMAGES[@]
         echo "Ok."
+}
+
+function check_ports_availability {
+	echo ""
+	echo "Check availability of ports $HTTP_PORT and $HTTPS_PORT..."
+	netstat -ltnp | grep "tcp" | grep -v "^tcp6" | while read -r line; 
+	do
+	        port_no=`echo $line | tr -s ' ' | cut -d ' ' -f 4 | cut -d ':' -f 2`
+	        process=`echo $line | tr -s ' ' | cut -d ' ' -f 7-`
+
+	        if [[ "$port_no" -eq "$HTTP_PORT" || "$port_no" -eq "$HTTPS_PORT" ]];
+	        then 
+	                echo "Port $port_no is being used by process $process. Cannot continue."
+	                echo "Please stop the process or set another port in etc/common.sh"
+	                exit 1
+	        fi
+	done
+	[[ $? != 0 ]] && exit $?
+	echo "Ok."
 }
 
 
