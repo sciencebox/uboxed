@@ -18,7 +18,7 @@ export DOCKER_NETWORK_NAME="demonet"
 # Images to be pulled
 NOTEBOOK_IMAGES=(cernphsft/systemuser:v2.9) # , jupyter/minimal-notebook)
 SYS_IMAGES=(cernbox cernboxgateway eos-controller eos-storage openldap swan_cvmfs swan_eos-fuse swan_jupyterhub)
-SYSIM_LOGIN="https://gitlab-registry.cern.ch"
+
 #SYSIM_REPO="gitlab-registry.cern.ch/cernbox/boxed"
 #SYSIM_PRIVATE=true
 SYSIM_REPO="gitlab-registry.cern.ch/cernbox/boxedhub"
@@ -198,6 +198,50 @@ do
         docker tag "$SYSIM_REPO":"$i" "$i":latest
 	docker rmi "$SYSIM_REPO":"$i"
 done
+}
+
+# Check to have fetched all the images
+
+function check_to_have_images {
+# Contrast two arrays checking that all elements of the first appear in the second one
+# Input: $1==required_images (as array)   $2==available_images (as array)
+        declare -a required=("${!1}")
+        declare -a available=("${!2}")
+
+        for req in "${required[@]}";
+        do
+                found=0
+                for ava in "${available[@]}";
+                do
+                        if [[ "$req" == "$ava" ]];
+                        then
+                                found=1
+                                break
+                        fi
+                done
+                if [[ "$found" -eq "0" ]];
+                then
+                        echo  "Unable to find $req image locally. Cannot continue."
+                        exit 1
+                fi
+        done
+}
+
+
+
+function check_to_have_all_images {
+        echo ""
+        echo "Check to have all the required images..."
+        # Check to have system component images
+        #LOCAL_IMAGES=`docker image ls | tail -n+2 | awk '{print $1}' | sort | tr '\n' ' '`
+        read -r -a LOCAL_IMAGES <<< `docker image ls | tail -n+2 | awk '{print $1}' | tr '\n' ' '`
+        check_to_have_images SYS_IMAGES[@] LOCAL_IMAGES[@]
+
+        # Check to have single user notebook images -- tag column is part of the check
+        #LOCAL_IMAGES=`docker image ls | tail -n+2 | awk '{print $1":"$2}' | tr '\n' ' '`
+        read -r -a LOCAL_IMAGES <<< `docker image ls | tail -n+2 | awk '{print $1":"$2}' | tr '\n' ' '`
+        check_to_have_images NOTEBOOK_IMAGES[@] LOCAL_IMAGES[@]
+        echo "Ok."
 }
 
 
