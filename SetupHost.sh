@@ -14,6 +14,7 @@ warn_about_software_requirements
 warn_about_interfence_eos_cvmfs
 
 # Clean-Up
+check_single_user_container_running
 stop_and_remove_containers
 cleanup_folders_for_fusemount
 initialize_folders_for_fusemount
@@ -45,6 +46,7 @@ done
 echo ""
 echo "Done!"
 echo "Access to log files: docker-compose logs -f"
+echo "Or get them sorted in time: docker-compose logs -t | sort -t '|' -k +2d"
 
 
 

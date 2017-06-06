@@ -108,13 +108,42 @@ case "$response" in
     *)
         echo "Cannot continue. Exiting..."
         echo ""
-        exit
+        exit 1
         ;;
 esac
 }
 
 
 # CLEANUP
+# Warn about eventual single user's servers running
+function check_single_user_container_running {
+RUNNING_CONTAINERS=`docker ps -a | tail -n+2 | awk '{print $NF}' | grep '^jupyter-' | tr '\n' ' '`
+
+if [[ -z $RUNNING_CONTAINERS ]];
+then
+	return 0
+else
+	echo ""
+	echo "WARNING: The following SWAN user's servers are in execution"
+        for i in $RUNNING_CONTAINERS; do echo "  - $i"; done
+        echo ""
+        echo "Please consider that their normal operation might be interrupeted or that they might prevent some services to restart."
+        echo "It is recommended to stop user's servers before proceeding."
+	read -r -p "Do you want to continue anyway [y/N] " response
+	case "$response" in
+	  [yY])
+		echo "Ok."
+		return 0
+		;;
+	  *)
+		echo "Cannot continue. Exiting..."
+		echo ""
+		exit 1
+		;;
+	esac
+fi
+}
+
 # Remove old containers
 function stop_and_remove_containers {
 # WARNING: This is not going to work in case a single-user server is still running, e.g., jupyter-userN
