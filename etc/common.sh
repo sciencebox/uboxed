@@ -12,6 +12,7 @@ export BOX_HOSTNAME=`hostname --fqdn`
 export HOST_FOLDER="/tmp/SWAN-in-Docker"
 export CVMFS_FOLDER=$HOST_FOLDER"/cvmfs_mount"
 export EOS_FOLDER=$HOST_FOLDER"/eos_mount"
+WARNING_FILE=$HOST_FOLDER"/DO_NOT_WRITE_ANY_FILE_HERE"
 
 # Network
 export DOCKER_NETWORK_NAME="demonet"
@@ -144,14 +145,26 @@ echo "Cleaning up folders..."
 killall cvmfs2 2>/dev/null
 killall eos 2>/dev/null
 sleep 1
-for i in `ls $CVMFS_FOLDER`
-do
-        fusermount -u $CVMFS_FOLDER/$i
-done
-fusermount -u $CVMFS_FOLDER
-fusermount -u $EOS_FOLDER
-sleep 1
-rm -rf $HOST_FOLDER #2>/dev/null
+
+if [[ -d $HOST_FOLDER ]];
+then
+	for i in `ls $CVMFS_FOLDER`
+	do
+	        fusermount -u $CVMFS_FOLDER/$i
+	        rmdir $CVMFS_FOLDER/$i
+	done
+	fusermount -u $CVMFS_FOLDER
+	rmdir $CVMFS_FOLDER
+
+	while [[ ! -z `mount -l | grep $EOS_FOLDER | head -n 1` ]];
+	do
+	        fusermount -u $EOS_FOLDER
+	done
+	rmdir $EOS_FOLDER
+
+	rm $WARNING_FILE
+	rmdir $HOST_FOLDER
+fi
 echo "Done."
 }
 
@@ -160,7 +173,7 @@ function initialize_folders_for_fusemount {
 echo ""
 echo "Initializing folders..."
 mkdir -p $HOST_FOLDER
-touch "$HOST_FOLDER"/DO_NOT_WRITE_ANY_FILE_HERE
+touch $WARNING_FILE
 
 # Explicitly set CVMFS and EOS folders as shared
 for i in $CVMFS_FOLDER $EOS_FOLDER
