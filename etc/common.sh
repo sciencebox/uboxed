@@ -66,7 +66,7 @@ echo -e "\t- git"
 echo -e "\t- docker (version 17.03.1-ce or greater)"
 echo -e "\t- docker-compose (version 1.11.2 or greater)"
 echo ""
-echo "Please consider installing it manually or using the script SetupInstall-Centos7.sh (for CentOS 7 only)."
+echo "Please consider installing it manually or using the script SetupInstall-<YourOS>.sh."
 echo ""
 }
 
