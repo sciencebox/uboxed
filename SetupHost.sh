@@ -47,6 +47,5 @@ echo ""
 echo "Done!"
 echo "Access to log files: docker-compose logs -f"
 echo "Or get them sorted in time: docker-compose logs -t | sort -t '|' -k +2d"
-
-
+echo "--> Please source the uboxed/etc/common.sh file first! <--"
 
