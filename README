@@ -7,8 +7,9 @@ https://cernbox.cern.ch/cernbox/doc/boxed
 Self-contained, containerized demo for next-generation cloud storage and computing services for scientific and general-purpose use:
 
  - CERNBox: https://cernbox.cern.ch
- - EOS: https://eos.cern.ch
- - SWAN: https://swan.cern.ch
+ - EOS: https://eos.web.cern.ch
+ - SWAN: https://swan.web.cern.ch
+ - CVMFS: https://cvmfs.web.cern.ch/
 
 Packaging by: Enrico Bocchi, Hugo Gonzalez Labrador, Jozsef Makai, Jakub T. Moscicki
 
@@ -21,7 +22,7 @@ Quick setup
 
     For Ubuntu:		./SetupInstall-Ubuntu.sh
 
-    Please check [*] for other OSes.
+    Please check [*] for supported OS versions.
 
 
  2. Setup and initialize all services:
@@ -37,16 +38,19 @@ Quick setup
  4. Go to: https://yourhost
 
 
-Enjoy and give feedback to CERN/IT.
+Enjoy and give feedback to CERN/IT and CERN/EP.
 
-For technical documentation, tips and tricks see: README.TECHNICAL
 
 ---
 
 [*] Host OS Support
 
-We test this package on CentOS7 and Ubuntu (from 14.04) hosts. For other OSes you may need some extra work (and sweat or tears). 
+We test this package on CentOS 7.3 and Ubuntu 17.04 hosts and we recommend to use one of these two OSes.
+The deployment on Ubuntu 14.04 and 16.04 requires the modification of the Docker storage driver to devicemapper.
+
+For other OSes you may need some extra work (and sweat or tears). 
 We are happy to hear from you and eventually include instructions for other OSes.
+
 
 Required software on the host:
 
@@ -59,5 +63,4 @@ Required software on the host:
 Copyright 2017, CERN.
 
 AGPL License (http://www.gnu.org/licenses/agpl-3.0.html)
-
 
