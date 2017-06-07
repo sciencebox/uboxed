@@ -30,6 +30,9 @@ SYSIM_PRIVATE=false
 LDAP_DB="openldap_database"
 LDAP_CF="openldap_config"
 
+# CERNBox volume names
+export CERNBOX_DB="cernbox_shares_db"
+
 ### EOS
 #TODO: This is not used for the moment
 EOS_SUPPORTED_VERSIONS=(AQUAMARINE CITRINE)
@@ -339,6 +342,13 @@ echo ""
 echo "Initialize Docker volume for LDAP..."
 docker volume inspect $LDAP_DB >/dev/null 2>&1 || docker volume create --name $LDAP_DB
 docker volume inspect $LDAP_CF >/dev/null 2>&1 || docker volume create --name $LDAP_CF
+}
+
+# Initialize volumes from CERNBox --> Make sharing settings persistent
+function volumes_for_cernbox {
+echo ""
+echo "Initialize Docker volume for CERNBox..."
+docker volume inspect $CERNBOX_DB >/dev/null 2>&1 || docker volume create --name $CERNBOX_DB
 }
 
 # Set locks to control dependencies and execution order

@@ -98,6 +98,7 @@ services:
     #ports:
     #  - 80:80
     volumes:
+      - ${CERNBOX_DB}:/var/www/html/cernbox/data
       - ${HOST_FOLDER}:${HOST_FOLDER}
     environment:
       BOX_HOSTNAME: ${BOX_HOSTNAME} # needed to fill cernbox.php.template
@@ -131,6 +132,10 @@ volumes:
   openldap_config:
     external:
       name: openldap_config
+
+  cernbox_shares_db:
+    external:
+      name: cernbox_shares_db
 
   eos-fst1:
     external:

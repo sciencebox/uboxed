@@ -23,6 +23,7 @@ initialize_folders_for_fusemount
 docker_network
 volumes_for_eos
 volumes_for_ldap
+volumes_for_cernbox
 
 fetch_singleuser_notebook_image
 fetch_system_component_images
