@@ -27,8 +27,8 @@ SYSIM_REPO="gitlab-registry.cern.ch/cernbox/boxedhub"
 SYSIM_PRIVATE=false
 
 # LDAP volume names
-LDAP_DB="openldap_database"
-LDAP_CF="openldap_config"
+export LDAP_DB="openldap_database"
+export LDAP_CF="openldap_config"
 
 # CERNBox volume names
 export CERNBOX_DB="cernbox_shares_db"

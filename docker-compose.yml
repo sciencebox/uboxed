@@ -24,8 +24,8 @@ services:
     image: openldap
     container_name: openldap
     volumes:
-      - openldap_database:/var/lib/ldap
-      - openldap_config:/etc/ldap/slapd.d
+      - ${LDAP_DB}:/var/lib/ldap
+      - ${LDAP_CF}:/etc/ldap/slapd.d
     environment:
       LDAP_LOG_LEVEL: none      # See: http://www.openldap.org/doc/admin24/slapdconf2.html
                                 # Default log level is 256 (0x100 stats)
