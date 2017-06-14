@@ -55,7 +55,7 @@ services:
     devices:
       - /dev/fuse
     security_opt:
-      - apparmor:unconfined
+      - apparmor=unconfined
     volumes:
       - ${CVMFS_FOLDER}:/cvmfs:shared
 
@@ -71,7 +71,7 @@ services:
       - /dev/fuse
     pid: host
     security_opt:
-      - apparmor:unconfined
+      - apparmor=unconfined
     volumes:
       - /sys/fs/cgroup
       - ${EOS_FOLDER}:/eos:shared
