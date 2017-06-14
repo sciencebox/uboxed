@@ -130,7 +130,7 @@ else
 	echo "WARNING: The following SWAN user's servers are in execution"
         for i in $RUNNING_CONTAINERS; do echo "  - $i"; done
         echo ""
-        echo "Please consider that their normal operation might be interrupeted or that they might prevent some services to restart."
+        echo "Please consider that their normal operation might be interrupted or that they might prevent some services to restart."
         echo "It is recommended to stop user's servers before proceeding."
 	read -r -p "Do you want to continue anyway [y/N] " response
 	case "$response" in
