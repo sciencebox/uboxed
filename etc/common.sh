@@ -3,6 +3,9 @@
 
 
 # ----- Variables ----- #
+# Versions
+export DOCKERCOMPOSE_VERSION="1.11.2"
+
 # Host properties 
 export HTTP_PORT=80
 export HTTPS_PORT=443
@@ -54,8 +57,6 @@ function need_root {
 if [ "$EUID" -ne 0 ]; then
 	echo "Please run as root"
 	exit 1
-else
-	echo "I am root"
 fi
 }
 
@@ -79,7 +80,7 @@ for ver in ${EOS_SUPPORTED_VERSIONS[*]};
 do
         if [[ "$ver" == "$EOS_CODENAME" ]];
         then
-		echo "Valid EOS codename"
+		echo "Valid EOS codename."
                 return
         fi
 done
@@ -308,6 +309,24 @@ function check_ports_availability {
 
 
 # DOCKER DEPLOYMENT
+function check_required_services_are_available {
+# Check docker daemon in running state
+	# TODO: Would be preferrable to use the exit code of `service docker status`, 
+	#	but it always returns 0 on Ubuntu 14.04
+if [ "`pgrep docker`" == "" ]; then
+	echo "Docker daemon is not running. Cannot continue."
+	exit 1
+fi
+
+# Check docker-compose is available and returns something when asking for version
+if [ ! -f /usr/local/bin/docker-compose ] || [ "`docker-compose --version`" == "" ]; then
+	echo "Docker-compose is not available. Cannot continue."
+	exit 1
+fi
+
+echo "All required services are available."
+}
+
 # Check to have (or create) a Docker network to allow communications among containers
 function docker_network {
 echo ""
