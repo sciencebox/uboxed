@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Import variables and functions
+source etc/common.sh
+
+
 # ----- Install the required software on the host ----- #
 install_software()
 {
@@ -15,8 +19,8 @@ install_software()
 	rm /tmp/getdocker.sh
 
 	echo "Installing docker-compose..."
-	wget -q https://github.com/docker/compose/releases/download/1.12.0/docker-compose-`uname -s`-`uname -m` -O /usr/local/bin/docker-compose
-	sudo chmod +x /usr/local/bin/docker-compose
+        wget -q https://github.com/docker/compose/releases/download/"$DOCKERCOMPOSE_VERSION"/docker-compose-`uname -s`-`uname -m` -O /usr/local/bin/docker-compose
+	chmod +x /usr/local/bin/docker-compose
 
 	echo "Starting docker daemon..."
 	service docker start
@@ -24,8 +28,9 @@ install_software()
 	docker-compose --version
 }
 
+# Check to be root
+need_root
 
-# Warning messages about installation
 # Raise warning about software installation
 echo ""
 echo "The following software has to be installed or updated:"
