@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export RUN_FOLDER="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"	# This is the folder from where this scripts runs
+
 # Import variables and functions
 source etc/common.sh
 
@@ -25,7 +27,9 @@ docker_network
 volumes_for_eos
 volumes_for_ldap
 volumes_for_cernbox
-
+if check_override_certificates; then
+	copy_override_certificates
+fi
 fetch_singleuser_notebook_image
 fetch_system_component_images
 check_to_have_all_images

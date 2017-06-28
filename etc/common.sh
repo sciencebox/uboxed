@@ -15,6 +15,7 @@ export BOX_HOSTNAME=`hostname --fqdn`
 export HOST_FOLDER="/tmp/SWAN-in-Docker"
 export CVMFS_FOLDER=$HOST_FOLDER"/cvmfs_mount"
 export EOS_FOLDER=$HOST_FOLDER"/eos_mount"
+export CERTS_FOLDER=$HOST_FOLDER"/certs"
 WARNING_FILE=$HOST_FOLDER"/DO_NOT_WRITE_ANY_FILE_HERE"
 
 # Network
@@ -80,7 +81,7 @@ for ver in ${EOS_SUPPORTED_VERSIONS[*]};
 do
         if [[ "$ver" == "$EOS_CODENAME" ]];
         then
-		echo "Valid EOS codename."
+		echo "I have a valid EOS codename."
                 return
         fi
 done
@@ -168,7 +169,6 @@ fi
 #       They need to be stopped and removed manually
 docker stop eos-fst{1..6} eos-mq eos-mgm 2>/dev/null
 docker rm -f eos-fst{1..6} eos-mq eos-mgm eos-controller 2>/dev/null
-echo "Done."
 }
 
 # Remove folders with EOS || CVMFS fuse mount on the host
@@ -181,6 +181,7 @@ sleep 1
 
 if [[ -d $HOST_FOLDER ]];
 then
+	# Unmount and remove CVMFS
 	for i in `ls $CVMFS_FOLDER`
 	do
 	        fusermount -u $CVMFS_FOLDER/$i
@@ -189,16 +190,26 @@ then
 	fusermount -u $CVMFS_FOLDER
 	rmdir $CVMFS_FOLDER
 
+	# Unmount and remove EOS
 	while [[ ! -z `mount -l | grep $EOS_FOLDER | head -n 1` ]];
 	do
 	        fusermount -u $EOS_FOLDER
 	done
 	rmdir $EOS_FOLDER
 
+	# Remove certificates (making sure to have the folder first)
+	if [ -d "$CERTS_FOLDER" ]; then
+		rm "$CERTS_FOLDER"/boxed.key
+	        rm "$CERTS_FOLDER"/boxed.crt 
+	        rmdir $CERTS_FOLDER
+	fi
+
+	# Remove the warning file
 	rm $WARNING_FILE
+
+	# Remove the entire directory
 	rmdir $HOST_FOLDER
 fi
-echo "Done."
 }
 
 # Re-initialize folders with EOS || CVMFS fuse mount 
@@ -215,6 +226,24 @@ do
 	mount --bind $i $i
 	mount --make-shared $i
 done
+}
+
+# Check if you have certificates for replacing the default ones in Docker images
+function check_override_certificates {
+echo ""
+echo "Checking the availability of new certificates for HTTPS..."
+if [[ -f "$RUN_FOLDER"/certs/boxed.crt && -f "$RUN_FOLDER"/certs/boxed.key ]]; then
+	return 0
+fi
+return 1
+}
+
+# (Eventually) Copy the available certificates for HTTPS in the temporary folder
+function copy_override_certificates {
+echo "Copying new certificates for HTTPS..."
+mkdir -p $CERTS_FOLDER
+cp "$RUN_FOLDER"/certs/boxed.crt "$CERTS_FOLDER"/boxed.crt
+cp "$RUN_FOLDER"/certs/boxed.key "$CERTS_FOLDER"/boxed.key
 }
 
 

@@ -13,8 +13,10 @@ services:
     # by exposing the Docker socket of the host machine
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ${HOST_FOLDER}:${HOST_FOLDER}
     environment:
       DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME}
+      HOST_FOLDER: ${HOST_FOLDER}
       CVMFS_FOLDER: ${CVMFS_FOLDER}
       EOS_FOLDER: ${EOS_FOLDER}
 

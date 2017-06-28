@@ -1,0 +1,7 @@
+The container-based EOS/CERNBox/SWAN package comes with a self-signed certificate for serving the Web traffic over HTTPS. When connecting to the Web page, the browser will raise a warning message (e.g., "Your connection is not secure" or "Your connection is not private").
+
+To replace the self-signed certificate with a different one, possibly issued by a trusted certification authority, please put in this folder
+  1. boxed.key
+  2. boxed.crt
+
+These two files will be copied into the Docker containers and will be loaded by the HTTP servers.
