@@ -116,7 +116,10 @@ services:
     volumes:
       - ${HOST_FOLDER}:${HOST_FOLDER}
     environment:
-      BOX_HOSTNAME: ${BOX_HOSTNAME} # needed to set EOS_NGINX_HOSTNAME in /etc/sysconfig/nginx
+      BOX_HOSTNAME: ${BOX_HOSTNAME} # configuration for nginx.eos.conf in /etc/sysconfig/nginx
+      HTTP_PORT: ${HTTP_PORT}
+      HTTPS_PORT: ${HTTPS_PORT}
+      WEBDAV_CLIENT_CERT_PORT: ${WEBDAV_CLIENT_CERT_PORT}
       HOST_FOLDER: ${HOST_FOLDER}
 
 

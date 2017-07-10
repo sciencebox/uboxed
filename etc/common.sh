@@ -7,9 +7,10 @@
 export DOCKERCOMPOSE_VERSION="1.11.2"
 
 # Host properties 
+export BOX_HOSTNAME=`hostname --fqdn`
 export HTTP_PORT=80
 export HTTPS_PORT=443
-export BOX_HOSTNAME=`hostname --fqdn`
+export WEBDAV_CLIENT_CERT_PORT=4443
 
 # Temporary folder on the host for deployment orchestration and fuse mounts
 export HOST_FOLDER="/tmp/SWAN-in-Docker"
