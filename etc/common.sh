@@ -4,7 +4,7 @@
 
 # ----- Variables ----- #
 # Versions
-export DOCKERCOMPOSE_VERSION="1.11.2"
+export DOCKERCOMPOSE_VERSION="1.15.0"	# Since 2017-08-08
 
 # Host properties 
 export BOX_HOSTNAME=`hostname --fqdn`
