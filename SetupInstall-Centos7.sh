@@ -13,13 +13,13 @@ install_software()
 			fuse
 
 	echo "Installing docker..."
-	wget -q https://get.docker.com -O /tmp/getdocker.sh
+	wget https://get.docker.com -O /tmp/getdocker.sh
 	mkdir -p /var/lib/docker
 	bash /tmp/getdocker.sh
 	rm /tmp/getdocker.sh
 
 	echo "Installing docker-compose..."
-	wget -q https://github.com/docker/compose/releases/download/"$DOCKERCOMPOSE_VERSION"/docker-compose-`uname -s`-`uname -m` -O /usr/local/bin/docker-compose
+	wget https://github.com/docker/compose/releases/download/"$DOCKERCOMPOSE_VERSION"/docker-compose-`uname -s`-`uname -m` -O /usr/local/bin/docker-compose
 	chmod +x /usr/local/bin/docker-compose
 
 	echo "Starting docker daemon..."
