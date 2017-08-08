@@ -220,19 +220,27 @@ fi
 
 # Remove docker network
 function docker_network_remove {
-NETNAME=$1
-
 echo ""
-echo "Removing docker network $NETNAME"
-docker network inspect $NETNAME | grep "\"Containers\": {}" >/dev/null 2>&1
-STILL_CONNECTED=$?
-if [[ "$STILL_CONNECTED" -gt 0 ]]; then
-        echo "Cannot remove docker network $NETNAME"
-        echo "Some containers are still connected to it"
-        docker network inspect $NETNAME
-        exit 1
+echo "Removing Docker network $DOCKER_NETWORK_NAME"
+
+# Check the network exists
+docker network inspect $DOCKER_NETWORK_NAME > /dev/null 2>&1
+if [[ "$?" -gt "0" ]]; then
+	echo "Docker network $DOCKER_NETWORK_NAME does not exist."
+	return 0
 else
-        docker network remove $NETNAME
+	# If exists, check for connected containers
+	docker network inspect $DOCKER_NETWORK_NAME | grep "\"Containers\": {}" >/dev/null 2>&1
+	if [[ "$?" -gt 0 ]]; then
+	        echo "Cannot remove Docker network $DOCKER_NETWORK_NAME"
+	        echo "Some containers are still connected to it."
+	        docker network inspect $DOCKER_NETWORK_NAME
+        	return 1
+	else
+		# If exists and no connected containers, remove it!
+	        docker network remove $DOCKER_NETWORK_NAME
+		return 0
+	fi
 fi
 }
 

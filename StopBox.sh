@@ -37,5 +37,5 @@ stop_and_remove_containers
 cleanup_folders_for_fusemount
 
 # Removing docker network
-docker_network_remove $DOCKER_NETWORK_NAME
+docker_network_remove
 
