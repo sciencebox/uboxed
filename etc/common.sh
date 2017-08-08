@@ -132,8 +132,13 @@ else
 	echo ""
 	echo "WARNING: The following SWAN user's servers are in execution"
         for i in $RUNNING_CONTAINERS; do echo "  - $i"; done
-        echo ""
-        echo "Please consider that their normal operation might be interrupted or that they might prevent some services to restart."
+
+	echo ""
+	if  [[ "$1" == "start" ]]; then
+	        echo "Please consider that their normal operation might be interrupted or that they might prevent some services to restart."
+	elif [[ "$1" == "stop" ]]; then
+	        echo "Please consider that their normal operation will be interrupted."
+	fi
         echo "It is recommended to stop user's servers before proceeding."
 	read -r -p "Do you want to continue anyway [y/N] " response
 	case "$response" in
@@ -212,6 +217,25 @@ then
 	rmdir $HOST_FOLDER
 fi
 }
+
+# Remove docker network
+function docker_network_remove {
+NETNAME=$1
+
+echo ""
+echo "Removing docker network $NETNAME"
+docker network inspect $NETNAME | grep "\"Containers\": {}" >/dev/null 2>&1
+STILL_CONNECTED=$?
+if [[ "$STILL_CONNECTED" -gt 0 ]]; then
+        echo "Cannot remove docker network $NETNAME"
+        echo "Some containers are still connected to it"
+        docker network inspect $NETNAME
+        exit 1
+else
+        docker network remove $NETNAME
+fi
+}
+
 
 # Re-initialize folders with EOS || CVMFS fuse mount 
 function initialize_folders_for_fusemount {
@@ -358,11 +382,13 @@ echo "All required services are available."
 }
 
 # Check to have (or create) a Docker network to allow communications among containers
-function docker_network {
+function docker_network_create {
+NETNAME=$1
+
 echo ""
-echo "Setting up Docker network..."
-docker network inspect $DOCKER_NETWORK_NAME >/dev/null 2>&1 || docker network create $DOCKER_NETWORK_NAME
-docker network inspect $DOCKER_NETWORK_NAME
+echo "Setting up Docker network $NETNAME"
+docker network inspect $NETNAME >/dev/null 2>&1 || docker network create $NETNAME
+docker network inspect $NETNAME
 }
 
 # Initialize volumes for EOS --> Make storage persistent

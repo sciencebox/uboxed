@@ -17,13 +17,13 @@ warn_about_software_requirements
 warn_about_interfence_eos_cvmfs
 
 # Clean-Up
-check_single_user_container_running
+check_single_user_container_running "start"
 stop_and_remove_containers
 cleanup_folders_for_fusemount
 initialize_folders_for_fusemount
 
 # Preparation
-docker_network
+docker_network_create $DOCKER_NETWORK_NAME
 volumes_for_eos
 volumes_for_ldap
 volumes_for_cernbox
