@@ -390,13 +390,11 @@ echo "All required services are available."
 }
 
 # Check to have (or create) a Docker network to allow communications among containers
-function docker_network_create {
-NETNAME=$1
-
+function docker_network {
 echo ""
-echo "Setting up Docker network $NETNAME"
-docker network inspect $NETNAME >/dev/null 2>&1 || docker network create $NETNAME
-docker network inspect $NETNAME
+echo "Setting up Docker network..."
+docker network inspect $DOCKER_NETWORK_NAME >/dev/null 2>&1 || docker network create $DOCKER_NETWORK_NAME
+docker network inspect $DOCKER_NETWORK_NAME
 }
 
 # Initialize volumes for EOS --> Make storage persistent

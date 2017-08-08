@@ -23,7 +23,7 @@ cleanup_folders_for_fusemount
 initialize_folders_for_fusemount
 
 # Preparation
-docker_network_create $DOCKER_NETWORK_NAME
+docker_network
 volumes_for_eos
 volumes_for_ldap
 volumes_for_cernbox
