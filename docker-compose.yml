@@ -15,6 +15,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - ${HOST_FOLDER}:${HOST_FOLDER}
     environment:
+      BOX_HOSTNAME: ${BOX_HOSTNAME}
       DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME}
       HOST_FOLDER: ${HOST_FOLDER}
       CVMFS_FOLDER: ${CVMFS_FOLDER}
@@ -97,7 +98,7 @@ services:
   cernbox:
     image: cernbox
     container_name: cernbox
-    #ports:
+    # Fore debugging only
     #  - 80:80
     volumes:
       - ${CERNBOX_DB}:/var/www/html/cernbox/data
