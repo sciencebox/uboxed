@@ -4,12 +4,13 @@
 
 # ----- Variables ----- #
 # Versions
-export DOCKERCOMPOSE_VERSION="1.11.2"
+export DOCKERCOMPOSE_VERSION="1.15.0"	# Since 2017-08-08
 
 # Host properties 
+export BOX_HOSTNAME=`hostname --fqdn`
 export HTTP_PORT=80
 export HTTPS_PORT=443
-export BOX_HOSTNAME=`hostname --fqdn`
+export WEBDAV_CLIENT_CERT_PORT=4443
 
 # Temporary folder on the host for deployment orchestration and fuse mounts
 export HOST_FOLDER="/tmp/SWAN-in-Docker"
@@ -131,8 +132,13 @@ else
 	echo ""
 	echo "WARNING: The following SWAN user's servers are in execution"
         for i in $RUNNING_CONTAINERS; do echo "  - $i"; done
-        echo ""
-        echo "Please consider that their normal operation might be interrupted or that they might prevent some services to restart."
+
+	echo ""
+	if  [[ "$1" == "start" ]]; then
+	        echo "Please consider that their normal operation might be interrupted or that they might prevent some services to restart."
+	elif [[ "$1" == "stop" ]]; then
+	        echo "Please consider that their normal operation will be interrupted."
+	fi
         echo "It is recommended to stop user's servers before proceeding."
 	read -r -p "Do you want to continue anyway [y/N] " response
 	case "$response" in
@@ -211,6 +217,33 @@ then
 	rmdir $HOST_FOLDER
 fi
 }
+
+# Remove docker network
+function docker_network_remove {
+echo ""
+echo "Removing Docker network $DOCKER_NETWORK_NAME"
+
+# Check the network exists
+docker network inspect $DOCKER_NETWORK_NAME > /dev/null 2>&1
+if [[ "$?" -gt "0" ]]; then
+	echo "Docker network $DOCKER_NETWORK_NAME does not exist."
+	return 0
+else
+	# If exists, check for connected containers
+	docker network inspect $DOCKER_NETWORK_NAME | grep "\"Containers\": {}" >/dev/null 2>&1
+	if [[ "$?" -gt 0 ]]; then
+	        echo "Cannot remove Docker network $DOCKER_NETWORK_NAME"
+	        echo "Some containers are still connected to it."
+	        docker network inspect $DOCKER_NETWORK_NAME
+        	return 1
+	else
+		# If exists and no connected containers, remove it!
+	        docker network remove $DOCKER_NETWORK_NAME
+		return 0
+	fi
+fi
+}
+
 
 # Re-initialize folders with EOS || CVMFS fuse mount 
 function initialize_folders_for_fusemount {
