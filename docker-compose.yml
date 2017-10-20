@@ -86,7 +86,7 @@ services:
   # This container spawns all the EOS core containers, i.e., MGM, MQ, FST, ...
   # and triggers the fuse mount from eos-fuse container
   eos-controller:
-    image: eos-controller
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-controller:latest
     container_name: eos-controller
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
