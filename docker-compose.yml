@@ -1,30 +1,10 @@
 # docker-compose configuration file
 version: "2"
 
+# CONTAINERS
 services:
 
-  # JupyterHub with CERN customizations
-  jupyterhub:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/jupyterhub:v0
-    container_name: jupyterhub
-    ports:
-      - 4443:443
-    # Enable to spawn new containers from the inside of the JupyterHub container
-    # by exposing the Docker socket of the host machine
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:rw
-      - ${HOST_FOLDER}:${HOST_FOLDER}
-    environment:
-      DEPLOYMENT_TYPE: "compose"
-      BOX_HOSTNAME: ${BOX_HOSTNAME}
-      DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME}
-      LDAP_ENDPOINT: "ldap.demonet"
-      HOST_FOLDER: ${HOST_FOLDER}
-      CVMFS_FOLDER: ${CVMFS_FOLDER}
-      EOS_FOLDER: ${EOS_FOLDER}
-      CONTAINER_IMAGE: "cernphsft/systemuser:v2.10"
-
-  # LDAP for users authentication
+  #--- LDAP for users authentication ---#
   # See: https://github.com/osixia/docker-openldap
   ldap:
     image: gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0
@@ -54,49 +34,11 @@ services:
       LDAP_ENDPOINT: "ldap.demonet"
     entrypoint: bash /root/addusers.sh
 
-  # CVMFS software repository
-  # Single-user' Jupyter servers need to access CVMFS for additional Kernels (e.g., ROOT C++, R) and software packages.
-  cvmfs:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/cvmfs:v0
-    container_name: cvmfs
-    cap_add:
-      - SYS_ADMIN
-    devices:
-      - /dev/fuse
-    security_opt:
-      - apparmor=unconfined
-    volumes:
-      - ${CVMFS_FOLDER}:/cvmfs:shared
-    environment:
-      DEPLOYMENT_TYPE: "compose"
 
-  # EOS Client with Fuse mount
-  eos-fuse:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-fuse:v0
-    container_name: eos-fuse
-    hostname: eos-fuse
-    domainname: demonet
-    cap_add:
-      - SYS_ADMIN
-    devices:
-      - /dev/fuse
-    pid: host
-    security_opt:
-      - apparmor=unconfined
-    volumes:
-      - /sys/fs/cgroup
-      - ${EOS_FOLDER}:/eos:shared
-      - ${HOST_FOLDER}:${HOST_FOLDER}
-    environment:
-      DEPLOYMENT_TYPE: "compose"
-      EOS_MGM_ENDPOINT: "eos-mgm.demonet"
-      LDAP_ENDPOINT: "ldap.demonet"
-      HOST_FOLDER: ${HOST_FOLDER}
-
-  # EOS Storage 
-  # This container spawns all the EOS core containers, i.e., MGM, MQ, FST, ...
-  # and triggers the fuse mount from eos-fuse container
+  #--- EOS Storage ---#
   eos-controller:
+    # This container spawns all the EOS core containers, i.e., MGM, MQ, FST, ...
+    # and triggers the fuse mount from eos-fuse container
     image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-controller:latest
     container_name: eos-controller
     volumes:
@@ -106,7 +48,8 @@ services:
       EOS_STORAGE_IMAGE_NAME: "gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0"
       HOST_FOLDER: ${HOST_FOLDER}
 
-  # CERNBox
+
+  #--- CERNBox ---#
   cernbox:
     image: gitlab-registry.cern.ch/cernbox/boxedhub/cernbox:v0
     container_name: cernbox
@@ -122,7 +65,8 @@ services:
       LDAP_ENDPOINT: "ldap.demonet"
       HOST_FOLDER: ${HOST_FOLDER}
 
-  # CERNBox gateway
+
+  #--- CERNBox Gateway ---#
   cernboxgateway:
     image: gitlab-registry.cern.ch/cernbox/boxedhub/cernboxgateway:v0
     container_name: cernboxgateway
@@ -150,25 +94,92 @@ services:
       HOST_FOLDER: ${HOST_FOLDER}
 
 
+  #--- SWAN, JupyterHub with CERN customizations ---#
+  jupyterhub:
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/jupyterhub:v0
+    container_name: jupyterhub
+    ports:
+      - 4443:443
+    # Enable to spawn new containers from the inside of the JupyterHub container
+    # by exposing the Docker socket of the host machine
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ${HOST_FOLDER}:${HOST_FOLDER}
+    environment:
+      DEPLOYMENT_TYPE: "compose"
+      BOX_HOSTNAME: ${BOX_HOSTNAME}
+      DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME}
+      LDAP_ENDPOINT: "ldap.demonet"
+      HOST_FOLDER: ${HOST_FOLDER}
+      CVMFS_FOLDER: ${CVMFS_FOLDER}
+      EOS_FOLDER: ${EOS_FOLDER}
+      CONTAINER_IMAGE: "cernphsft/systemuser:v2.10"
+
+  #--- SWAN, CVMFS software repository ---#
+  cvmfs:
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/cvmfs:v0
+    container_name: cvmfs
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse
+    security_opt:
+      - apparmor=unconfined
+    volumes:
+      - ${CVMFS_FOLDER}:/cvmfs:shared
+    environment:
+      DEPLOYMENT_TYPE: "compose"
+
+  #--- SWAN, EOS Client with Fuse mount ---#
+  eos-fuse:
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-fuse:v0
+    container_name: eos-fuse
+    hostname: eos-fuse
+    domainname: demonet
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse
+    pid: host
+    security_opt:
+      - apparmor=unconfined
+    volumes:
+      - /sys/fs/cgroup
+      - ${EOS_FOLDER}:/eos:shared
+      - ${HOST_FOLDER}:${HOST_FOLDER}
+    environment:
+      DEPLOYMENT_TYPE: "compose"
+      EOS_MGM_ENDPOINT: "eos-mgm.demonet"
+      LDAP_ENDPOINT: "ldap.demonet"
+      HOST_FOLDER: ${HOST_FOLDER}
+
+
+
+# NETWORKS
 networks:
   default:
     external:
       name: demonet
 
 
+
+# VOLUMES
 volumes:
+
+  # LDAP
   ldap_database:
     external:
       name: ldap_database
-
   ldap_config:
     external:
       name: ldap_config
 
+  # CERNBox
   cernbox_shares_db:
     external:
       name: cernbox_shares_db
 
+  # EOS
   eos-fst1:
     external:
       name: eos-fst1
@@ -218,4 +229,3 @@ volumes:
   eos-mq:
     external:
       name: eos-mq
-
