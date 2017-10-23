@@ -110,6 +110,8 @@ services:
   cernbox:
     image: gitlab-registry.cern.ch/cernbox/boxedhub/cernbox:v0
     container_name: cernbox
+    hostname: cernbox
+    domainname: demonet
     volumes:
       - ${CERNBOX_DB}:/var/www/html/cernbox/data
       - ${HOST_FOLDER}:${HOST_FOLDER}
@@ -122,17 +124,28 @@ services:
 
   # CERNBox gateway
   cernboxgateway:
-    image: cernboxgateway
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernboxgateway:v0
     container_name: cernboxgateway
+    hostname: cernboxgateway
+    domainname: demonet
     ports:
       - ${HTTP_PORT}:80
       - ${HTTPS_PORT}:443
     volumes:
       - ${HOST_FOLDER}:${HOST_FOLDER}
     environment:
+      DEPLOYMENT_TYPE: "compose"
       BOX_HOSTNAME: ${BOX_HOSTNAME} # configuration for nginx.eos.conf in /etc/sysconfig/nginx
       HTTP_PORT: ${HTTP_PORT}
       HTTPS_PORT: ${HTTPS_PORT}
+      EOS_MGM_ALIAS: "eos-mgm.demonet"
+      EOS_MGM_ALIAS_PORT: ":8000"
+      SWAN_BACKEND: ${BOX_HOSTNAME}
+      SWAN_BACKEND_PORT: ":4443"
+      OWNCLOUD_BACKEND: "cernbox.demonet"
+      OWNCLOUD_BACKEND_PORT: ":80"
+      LDAP_BACKEND1: "ldap.demonet"
+      LDAP_BACKEND2: "ldap.demonet"
       WEBDAV_CLIENT_CERT_PORT: ${WEBDAV_CLIENT_CERT_PORT}
       HOST_FOLDER: ${HOST_FOLDER}
 
