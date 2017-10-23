@@ -26,8 +26,8 @@ services:
   # LDAP for users authentication
   # See: https://github.com/osixia/docker-openldap
   ldap:
-    image: openldap
-    container_name: openldap
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0
+    container_name: ldap
     volumes:
       - ${LDAP_DB}:/var/lib/ldap
       - ${LDAP_CF}:/etc/ldap/slapd.d
@@ -38,8 +38,8 @@ services:
 
   # Add demo users on the LDAP server
   ldap-ldapadd:
-    image: openldap
-    container_name: openldap-ldapadd
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0
+    container_name: ldap-ldapadd
     depends_on:
       - ldap
     links:
@@ -48,7 +48,7 @@ services:
       - ${HOST_FOLDER}:${HOST_FOLDER}
     environment:
       HOST_FOLDER: ${HOST_FOLDER}
-    entrypoint: bash /openldap_addusers.sh
+    entrypoint: bash /root/addusers.sh
 
   # CVMFS software repository
   # Single-user' Jupyter servers need to access CVMFS for additional Kernels (e.g., ROOT C++, R) and software packages.
