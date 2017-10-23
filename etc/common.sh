@@ -24,13 +24,19 @@ export DOCKER_NETWORK_NAME="demonet"
 
 # Images to be pulled
 NOTEBOOK_IMAGES=(cernphsft/systemuser:v2.10) # , jupyter/minimal-notebook)
-NOTEBOOK_IMAGES=()
 
 #SYS_IMAGES=(cernbox cernboxgateway eos-controller eos-storage ldap swan_cvmfs swan_eos-fuse swan_jupyterhub)
 # Deprecated since the introduction of Images for Kubernetes
 SYSIM_PRIVATE=false
 SYSIM_REPO="gitlab-registry.cern.ch/cernbox/boxedhub"
-SYS_IMAGES=(ldap:v0 eos-controller:latest cernbox:v0 cernboxgateway:v0 jupyterhub:v0 cvmfs:v0 eos-fuse:v0 )
+SYS_IMAGES=(gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0 \
+gitlab-registry.cern.ch/cernbox/boxedhub/eos-controller:latest \
+gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0 \
+gitlab-registry.cern.ch/cernbox/boxedhub/cernbox:v0 \
+gitlab-registry.cern.ch/cernbox/boxedhub/cernboxgateway:v0 \
+gitlab-registry.cern.ch/cernbox/boxedhub/jupyterhub:v0 \
+gitlab-registry.cern.ch/cernbox/boxedhub/cvmfs:v0 \
+gitlab-registry.cern.ch/cernbox/boxedhub/eos-fuse:v0 )
 
 # LDAP volume names
 export LDAP_DB="ldap_database"
@@ -305,7 +311,7 @@ fi
 
 for i in ${SYS_IMAGES[*]};
 do
-	docker pull "$SYSIM_REPO"/"$i"
+	docker pull $i
 done
 #for i in ${SYS_IMAGES[*]};
 #do
@@ -346,7 +352,7 @@ function check_to_have_all_images {
         echo "Check to have all the required images..."
         # Check to have system component images
         #LOCAL_IMAGES=`docker image ls | tail -n+2 | awk '{print $1}' | sort | tr '\n' ' '`
-        read -r -a LOCAL_IMAGES <<< `docker image ls | tail -n+2 | awk '{print $1}' | tr '\n' ' '`
+        read -r -a LOCAL_IMAGES <<< `docker image ls | tail -n+2 | awk '{print $1":"$2}' | tr '\n' ' '`
         check_to_have_images SYS_IMAGES[@] LOCAL_IMAGES[@]
 
         # Check to have single user notebook images -- tag column is part of the check
