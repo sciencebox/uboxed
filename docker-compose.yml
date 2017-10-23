@@ -53,7 +53,7 @@ services:
   # CVMFS software repository
   # Single-user' Jupyter servers need to access CVMFS for additional Kernels (e.g., ROOT C++, R) and software packages.
   cvmfs:
-    image: swan_cvmfs
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/cvmfs:v0
     container_name: cvmfs
     cap_add:
       - SYS_ADMIN
@@ -63,6 +63,8 @@ services:
       - apparmor=unconfined
     volumes:
       - ${CVMFS_FOLDER}:/cvmfs:shared
+    environment:
+      DEPLOYMENT_TYPE: "compose"
 
   # EOS Client with Fuse mount
   eos-fuse:
