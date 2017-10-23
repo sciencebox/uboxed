@@ -23,16 +23,14 @@ WARNING_FILE=$HOST_FOLDER"/DO_NOT_WRITE_ANY_FILE_HERE"
 export DOCKER_NETWORK_NAME="demonet"
 
 # Images to be pulled
-NOTEBOOK_IMAGES=(cernphsft/systemuser:v2.9) # , jupyter/minimal-notebook)
+NOTEBOOK_IMAGES=(cernphsft/systemuser:v2.10) # , jupyter/minimal-notebook)
 NOTEBOOK_IMAGES=()
-SYS_IMAGES=(cernbox cernboxgateway eos-controller eos-storage ldap swan_cvmfs swan_eos-fuse swan_jupyterhub)
-SYS_IMAGES=()
 
-
-#SYSIM_REPO="gitlab-registry.cern.ch/cernbox/boxed"
-#SYSIM_PRIVATE=true
-SYSIM_REPO="gitlab-registry.cern.ch/cernbox/boxedhub"
+#SYS_IMAGES=(cernbox cernboxgateway eos-controller eos-storage ldap swan_cvmfs swan_eos-fuse swan_jupyterhub)
+# Deprecated since the introduction of Images for Kubernetes
 SYSIM_PRIVATE=false
+SYSIM_REPO="gitlab-registry.cern.ch/cernbox/boxedhub"
+SYS_IMAGES=(ldap:v0 eos-controller:latest cernbox:v0 cernboxgateway:v0 jupyterhub:v0 cvmfs:v0 eos-fuse:v0 )
 
 # LDAP volume names
 export LDAP_DB="ldap_database"
@@ -304,12 +302,17 @@ if [ `echo $SYSIM_PRIVATE | tr '[:upper:]' '[:lower:]'` = "true" ]; then
 	echo "Log in to remote repository"
 	docker login $SYSIM_LOGIN
 fi
+
 for i in ${SYS_IMAGES[*]};
 do
-        docker pull "$SYSIM_REPO":"$i"
-        docker tag "$SYSIM_REPO":"$i" "$i":latest
-	docker rmi "$SYSIM_REPO":"$i"
+	docker pull "$SYSIM_REPO"/"$i"
 done
+#for i in ${SYS_IMAGES[*]};
+#do
+#        docker pull "$SYSIM_REPO":"$i"
+#        docker tag "$SYSIM_REPO":"$i" "$i":latest
+#	docker rmi "$SYSIM_REPO":"$i"
+#done
 }
 
 # Check to have fetched all the images
