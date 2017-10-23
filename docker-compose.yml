@@ -66,7 +66,7 @@ services:
 
   # EOS Client with Fuse mount
   eos-fuse:
-    image: swan_eos-fuse
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-fuse:v0
     container_name: eos-fuse
     hostname: eos-fuse
     domainname: demonet
@@ -82,7 +82,9 @@ services:
       - ${EOS_FOLDER}:/eos:shared
       - ${HOST_FOLDER}:${HOST_FOLDER}
     environment:
+      DEPLOYMENT_TYPE: "compose"
       HOST_FOLDER: ${HOST_FOLDER}
+      EOS_MGM_ENDPOINT: "eos-mgm.demonet"
 
   # EOS Storage 
   # This container spawns all the EOS core containers, i.e., MGM, MQ, FST, ...
