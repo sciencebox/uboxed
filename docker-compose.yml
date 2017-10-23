@@ -92,6 +92,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - ${HOST_FOLDER}:${HOST_FOLDER}
     environment:
+      EOS_STORAGE_IMAGE_NAME: "gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0"
       HOST_FOLDER: ${HOST_FOLDER}
 
   # CERNBox
