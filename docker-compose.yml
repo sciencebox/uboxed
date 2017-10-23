@@ -5,7 +5,7 @@ services:
 
   # JupyterHub with CERN customizations
   jupyterhub:
-    image: swan_jupyterhub
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/jupyterhub:v0
     container_name: jupyterhub
     ports:
       - 4443:443
@@ -15,11 +15,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - ${HOST_FOLDER}:${HOST_FOLDER}
     environment:
+      DEPLOYMENT_TYPE: "compose"
       BOX_HOSTNAME: ${BOX_HOSTNAME}
       DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME}
       HOST_FOLDER: ${HOST_FOLDER}
       CVMFS_FOLDER: ${CVMFS_FOLDER}
       EOS_FOLDER: ${EOS_FOLDER}
+      CONTAINER_IMAGE: "cernphsft/systemuser:v2.10"
 
   # LDAP for users authentication
   # See: https://github.com/osixia/docker-openldap
