@@ -24,7 +24,10 @@ export DOCKER_NETWORK_NAME="demonet"
 
 # Images to be pulled
 NOTEBOOK_IMAGES=(cernphsft/systemuser:v2.9) # , jupyter/minimal-notebook)
-SYS_IMAGES=(cernbox cernboxgateway eos-controller eos-storage openldap swan_cvmfs swan_eos-fuse swan_jupyterhub)
+NOTEBOOK_IMAGES=()
+SYS_IMAGES=(cernbox cernboxgateway eos-controller eos-storage ldap swan_cvmfs swan_eos-fuse swan_jupyterhub)
+SYS_IMAGES=()
+
 
 #SYSIM_REPO="gitlab-registry.cern.ch/cernbox/boxed"
 #SYSIM_PRIVATE=true
@@ -32,8 +35,8 @@ SYSIM_REPO="gitlab-registry.cern.ch/cernbox/boxedhub"
 SYSIM_PRIVATE=false
 
 # LDAP volume names
-export LDAP_DB="openldap_database"
-export LDAP_CF="openldap_config"
+export LDAP_DB="ldap_database"
+export LDAP_CF="ldap_config"
 
 # CERNBox volume names
 export CERNBOX_DB="cernbox_shares_db"
@@ -168,8 +171,8 @@ if [ -z $1 ]; then
 else
 	docker-compose -f $1 down -v
 fi
-#docker stop jupyterhub openldap openldap-ldapadd cvmfs eos-fuse cernbox cernboxgateway 2>/dev/null
-#docker rm -f jupyterhub openldap openldap-ldapadd cvmfs eos-fuse cernbox cernboxgateway 2>/dev/null
+#docker stop jupyterhub ldap ldap-ldapadd cvmfs eos-fuse cernbox cernboxgateway 2>/dev/null
+#docker rm -f jupyterhub ldap ldap-ldapadd cvmfs eos-fuse cernbox cernboxgateway 2>/dev/null
 
 # NOTE: Containers for EOS storage are not managed by docker-compose
 #       They need to be stopped and removed manually

@@ -18,6 +18,7 @@ services:
       DEPLOYMENT_TYPE: "compose"
       BOX_HOSTNAME: ${BOX_HOSTNAME}
       DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME}
+      LDAP_ENDPOINT: "ldap.demonet"
       HOST_FOLDER: ${HOST_FOLDER}
       CVMFS_FOLDER: ${CVMFS_FOLDER}
       EOS_FOLDER: ${EOS_FOLDER}
@@ -28,6 +29,8 @@ services:
   ldap:
     image: gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0
     container_name: ldap
+    hostname: ldap
+    domainname: demonet
     volumes:
       - ${LDAP_DB}:/var/lib/ldap
       - ${LDAP_CF}:/etc/ldap/slapd.d
@@ -48,6 +51,7 @@ services:
       - ${HOST_FOLDER}:${HOST_FOLDER}
     environment:
       HOST_FOLDER: ${HOST_FOLDER}
+      LDAP_ENDPOINT: "ldap.demonet"
     entrypoint: bash /root/addusers.sh
 
   # CVMFS software repository
@@ -85,8 +89,9 @@ services:
       - ${HOST_FOLDER}:${HOST_FOLDER}
     environment:
       DEPLOYMENT_TYPE: "compose"
-      HOST_FOLDER: ${HOST_FOLDER}
       EOS_MGM_ENDPOINT: "eos-mgm.demonet"
+      LDAP_ENDPOINT: "ldap.demonet"
+      HOST_FOLDER: ${HOST_FOLDER}
 
   # EOS Storage 
   # This container spawns all the EOS core containers, i.e., MGM, MQ, FST, ...
@@ -112,7 +117,7 @@ services:
       DEPLOYMENT_TYPE: "compose"
       CERNBOXGATEWAY_HOSTNAME: ${BOX_HOSTNAME}
       EOS_MGM_ALIAS: "eos-mgm.demonet"
-      LDAP_ENDPOINT: "openldap.demonet"
+      LDAP_ENDPOINT: "ldap.demonet"
       HOST_FOLDER: ${HOST_FOLDER}
 
   # CERNBox gateway
@@ -139,13 +144,13 @@ networks:
 
 
 volumes:
-  openldap_database:
+  ldap_database:
     external:
-      name: openldap_database
+      name: ldap_database
 
-  openldap_config:
+  ldap_config:
     external:
-      name: openldap_config
+      name: ldap_config
 
   cernbox_shares_db:
     external:
