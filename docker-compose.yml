@@ -97,15 +97,16 @@ services:
 
   # CERNBox
   cernbox:
-    image: cernbox
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernbox:v0
     container_name: cernbox
-    # Fore debugging only
-    #  - 80:80
     volumes:
       - ${CERNBOX_DB}:/var/www/html/cernbox/data
       - ${HOST_FOLDER}:${HOST_FOLDER}
     environment:
-      BOX_HOSTNAME: ${BOX_HOSTNAME} # needed to fill cernbox.php.template
+      DEPLOYMENT_TYPE: "compose"
+      CERNBOXGATEWAY_HOSTNAME: ${BOX_HOSTNAME}
+      EOS_MGM_ALIAS: "eos-mgm.demonet"
+      LDAP_ENDPOINT: "openldap.demonet"
       HOST_FOLDER: ${HOST_FOLDER}
 
   # CERNBox gateway
