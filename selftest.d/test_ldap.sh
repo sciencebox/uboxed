@@ -16,8 +16,8 @@ mkdir -p $OUTPUT_DIR
 
 # Query LDAP server and contrast obtained results
 # 1.from LDAP container itself (check you have some users and generate groundtruth)
-docker exec ldap ldapsearch -x -H ldap://localhost -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin > $LDAP_OUT
-docker exec ldap ldapsearch -x -H ldaps://localhost -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin > $LDAPS_OUT
+docker exec ldap ldapsearch -x -H ldap://ldap -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin > $LDAP_OUT
+docker exec ldap ldapsearch -x -H ldaps://ldap -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin > $LDAPS_OUT
 diff $LDAP_OUT $LDAPS_OUT || exit 1
 
 # 2.from other containers

@@ -15,25 +15,25 @@ dd if=/dev/zero of=/tmp/largefile10240.dat bs=1024 count=10000
 
 FILES="/etc/passwd /tmp/largefile256.dat /tmp/largefile512.dat /tmp/largefile1024.dat /tmp/largefile10240.dat"
 
-if eos ls -ld /eos/demo/user/u/user0/autotest; then 
-    eos -r user0 1000 rm -r /eos/demo/user/u/user0/autotest
+if eos ls -ld /eos/docker/user/u/user0/autotest; then 
+    eos -r user0 1000 rm -r /eos/docker/user/u/user0/autotest
 fi
 
-eos -r user0 1000 mkdir /eos/demo/user/u/user0/autotest
+eos -r user0 1000 mkdir /eos/docker/user/u/user0/autotest
 
 for ff in $FILES; do
 
     f=`basename $ff`
 
     # upload
-    eos -r user0 1000 cp $ff /eos/demo/user/u/user0/autotest/$f || exit 1
+    eos -r user0 1000 cp $ff /eos/docker/user/u/user0/autotest/$f || exit 1
     
     # overwrite file
-    eos -r user0 1000 cp $ff /eos/demo/user/u/user0/autotest/$f || exit 1
+    eos -r user0 1000 cp $ff /eos/docker/user/u/user0/autotest/$f || exit 1
     
     # download
     rm -f /tmp/$f
-    eos -r user0 1000 cp /eos/demo/user/u/user0/autotest/$f /tmp/$f || exit 1
+    eos -r user0 1000 cp /eos/docker/user/u/user0/autotest/$f /tmp/$f || exit 1
 done
 
 
