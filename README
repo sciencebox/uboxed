@@ -58,13 +58,13 @@ Remove Docker images and volumes
 -----------
 
  1. Remove Docker images manually with:
-    docker rmi cernbox cernboxgateway eos-controller eos-storage openldap swan_cvmfs swan_eos-fuse swan_jupyterhub selftest cernphsft/systemuser:v2.9 cern/cc7-base:20170113 
+    docker rmi cernbox cernboxgateway eos-controller eos-storage ldap swan_cvmfs swan_eos-fuse swan_jupyterhub selftest cernphsft/systemuser:v2.10 cern/cc7-base:20170920
 
 
  2. Remove Docker volumes
     WARNING: This will delete user's data!
 
-    docker volume rm cernbox_shares_db openldap_config openldap_database eos-fst1 eos-fst1_userdata eos-fst2 eos-fst2_userdata eos-fst3 eos-fst3_userdata eos-fst4 eos-fst4_userdata eos-fst5 eos-fst5_userdata eos-fst6 eos-fst6_userdata eos-mgm eos-mq openldap_config openldap_database 
+    docker volume rm cernbox_shares_db ldap_config ldap_database eos-fst1 eos-fst1_userdata eos-fst2 eos-fst2_userdata eos-fst3 eos-fst3_userdata eos-fst4 eos-fst4_userdata eos-fst5 eos-fst5_userdata eos-fst6 eos-fst6_userdata eos-mgm eos-mq
 
 
 

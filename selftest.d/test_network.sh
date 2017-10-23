@@ -2,8 +2,8 @@
 set -o errexit # bail out on all errors immediately
 set -x
 
-RUNNING_CONTAINERS="cernbox cernboxgateway cvmfs eos-fst1 eos-fst2 eos-fst3 eos-fst4 eos-fst5 eos-fst6 eos-fuse eos-mgm eos-mq jupyterhub openldap" 
-SERVICE_CONTAINERS="eos-controller openldap-ldapadd"
+RUNNING_CONTAINERS="cernbox cernboxgateway cvmfs eos-fst1 eos-fst2 eos-fst3 eos-fst4 eos-fst5 eos-fst6 eos-fuse eos-mgm eos-mq jupyterhub ldap" 
+SERVICE_CONTAINERS="eos-controller ldap-ldapadd"
 
 
 # Basic reachability test with ping
