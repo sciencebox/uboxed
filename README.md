@@ -28,10 +28,12 @@ Packaging by: Enrico Bocchi, Hugo Gonzalez Labrador, Jozsef Makai, Jakub T. Mosc
 
 
  2. Setup and initialize all services: 
+
     `./SetupHost.sh`
 
 
  3. Quick test of the services:
+
     `./TestHost.sh`
 
 
@@ -42,11 +44,13 @@ Packaging by: Enrico Bocchi, Hugo Gonzalez Labrador, Jozsef Makai, Jakub T. Mosc
 ### Stop services
 
  1. If you executed TestHost.sh at step 3 of the setup procedure, please stop the test container:
+
     `docker stop selftest`
     `docker rm selftest`
 
 
  2. Run the dedicated script:
+
     `./StopBox.sh`
 
 
@@ -54,21 +58,25 @@ Packaging by: Enrico Bocchi, Hugo Gonzalez Labrador, Jozsef Makai, Jakub T. Mosc
 ### Remove Docker images and volumes
 
  1. Remove Docker images manually with:
+
     `docker rmi cernbox cernboxgateway eos-controller eos-storage ldap swan_cvmfs swan_eos-fuse swan_jupyterhub selftest cernphsft/systemuser:v2.10 cern/cc7-base:20170920`
 
 
  2. Remove Docker volumes
+
     WARNING: This will delete user's data!
 
     `docker volume rm cernbox_shares_db ldap_config ldap_database eos-fst1 eos-fst1_userdata eos-fst2 eos-fst2_userdata eos-fst3 eos-fst3_userdata eos-fst4 eos-fst4_userdata eos-fst5 eos-fst5_userdata eos-fst6 eos-fst6_userdata eos-mgm eos-mq`
 
 
 
+-----
 
 Enjoy and give feedback to CERN/IT and CERN/EP.
 
-
 -----
+
+
 *\*Host OS Support*
 
 We test this package on CentOS 7.3 and Ubuntu 17.04 hosts and we recommend to use one of these two OSes.
