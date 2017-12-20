@@ -46,6 +46,7 @@ Packaging by: Enrico Bocchi, Hugo Gonzalez Labrador, Jozsef Makai, Jakub T. Mosc
  1. If you executed TestHost.sh at step 3 of the setup procedure, please stop the test container:
 
     `docker stop selftest`
+
     `docker rm selftest`
 
 
@@ -72,7 +73,7 @@ Packaging by: Enrico Bocchi, Hugo Gonzalez Labrador, Jozsef Makai, Jakub T. Mosc
 
 -----
 
-Enjoy and give feedback to CERN/IT and CERN/EP.
+#### *Enjoy and give feedback to CERN/IT and CERN/EP.*
 
 -----
 
