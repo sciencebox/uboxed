@@ -1,5 +1,5 @@
 # Welcome to BOXED
-### *Single-host Demo Deployment*
+### *UBoxed -- Single-host Demo Deployment*
 
 -----
 
@@ -7,14 +7,16 @@ https://cernbox.cern.ch/cernbox/doc/boxed
 
 Self-contained, containerized demo for next-generation cloud storage and computing services for scientific and general-purpose use:
 
- - CERNBox: https://cernbox.cern.ch
+ - CERNBox: https://cernbox.web.cern.ch
  - EOS: https://eos.web.cern.ch
  - SWAN: https://swan.web.cern.ch
- - CVMFS: https://cvmfs.web.cern.ch/
+ - CVMFS: https://cvmfs.web.cern.ch
+
 
 Packaging by: Enrico Bocchi, Hugo Gonzalez Labrador, Jozsef Makai, Jakub T. Moscicki
 
 
+-----
 
 ### Quick setup
 
