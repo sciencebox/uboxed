@@ -30,8 +30,9 @@ services:
     volumes:
       - ${HOST_FOLDER}:${HOST_FOLDER}
     environment:
-      HOST_FOLDER: ${HOST_FOLDER}
+      DEPLOYMENT_TYPE: "compose"
       LDAP_ENDPOINT: "ldap.demonet"
+      HOST_FOLDER: ${HOST_FOLDER}
     entrypoint: bash /root/addusers.sh
 
 
