@@ -4,72 +4,150 @@ version: "2"
 # CONTAINERS
 services:
 
-  #--- LDAP for users authentication ---#
-  # See: https://github.com/osixia/docker-openldap
+  #--- LDAP ---#
+  # Local user database. All services have a unified view on user accounts.
   ldap:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0.2
     container_name: ldap
     hostname: ldap
-    domainname: demonet
+    #domainname: sciencebox
     volumes:
       - ${LDAP_DB}:/var/lib/ldap
       - ${LDAP_CF}:/etc/ldap/slapd.d
-    environment:
-      LDAP_LOG_LEVEL: none      # See: http://www.openldap.org/doc/admin24/slapdconf2.html
-                                # Default log level is 256 (0x100 stats)
-      LDAP_TLS_VERIFY_CLIENT: try
+    env_file:
+      - .env
 
   # Add demo users on the LDAP server
   ldap-ldapadd:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0
-    container_name: ldap-ldapadd
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0.2
+    container_name: ldap-add
     depends_on:
       - ldap
     links:
       - ldap
     volumes:
       - ${HOST_FOLDER}:${HOST_FOLDER}
-    environment:
-      DEPLOYMENT_TYPE: "compose"
-      LDAP_ENDPOINT: "ldap.demonet"
-      HOST_FOLDER: ${HOST_FOLDER}
+    env_file:
+      - .env
     entrypoint: bash /root/addusers.sh
 
 
   #--- EOS Storage ---#
-  eos-controller:
-    # This container spawns all the EOS core containers, i.e., MGM, MQ, FST, ...
-    # and triggers the fuse mount from eos-fuse container
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-controller:latest
-    container_name: eos-controller
+  eos-mgm:
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.8
+    container_name: eos-mgm
+    hostname: eos-mgm
+    domainname: demonet
+    cap_add:
+      - SYS_PTRACE
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:rw
       - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${EOS_MGM}:/var/eos
+    env_file:
+      - .env
     environment:
-      EOS_STORAGE_IMAGE_NAME: "gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0"
-      HOST_FOLDER: ${HOST_FOLDER}
+      EOS_ROLE: "mgm"
+
+  eos-mq:
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.8
+    container_name: eos-mq
+    hostname: eos-mq
+    domainname: demonet
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${EOS_MQ}:/var/eos
+    env_file:
+      - .env
+    environment:
+      EOS_ROLE: "mq"
+
+  eos-fst1:
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.8
+    container_name: eos-fst1
+    hostname: eos-fst1
+    domainname: demonet
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${EOS_FST_1}:/var/eos
+      - ${EOS_FST_USERDATA_1}:/${FST_MOUNTPOINT}
+    env_file:
+      - .env
+    environment:
+      EOS_ROLE: "fst"
+
+  eos-fst2:
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.8
+    container_name: eos-fst2
+    hostname: eos-fst2
+    domainname: demonet
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${EOS_FST_2}:/var/eos
+      - ${EOS_FST_USERDATA_2}:/${FST_MOUNTPOINT}
+    env_file:
+      - .env
+    environment:
+      EOS_ROLE: "fst"
+
+  eos-fst3:
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.8
+    container_name: eos-fst3
+    hostname: eos-fst3
+    domainname: demonet
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${EOS_FST_3}:/var/eos
+      - ${EOS_FST_USERDATA_3}:/${FST_MOUNTPOINT}
+    env_file:
+      - .env
+    environment:
+      EOS_ROLE: "fst"
+
+  eos-fst4:
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.8
+    container_name: eos-fst4
+    hostname: eos-fst4
+    domainname: demonet
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${EOS_FST_4}:/var/eos
+      - ${EOS_FST_USERDATA_4}:/${FST_MOUNTPOINT}
+    env_file:
+      - .env
+    environment:
+      EOS_ROLE: "fst"
 
 
   #--- CERNBox ---#
   cernbox:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernbox:v0
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernbox:v0.9
     container_name: cernbox
     hostname: cernbox
     domainname: demonet
     volumes:
-      - ${CERNBOX_DB}:/var/www/html/cernbox/data
       - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${CERNBOX_DB}:/var/www/html/cernbox/data
+    env_file:
+      - .env
     environment:
-      DEPLOYMENT_TYPE: "compose"
       CERNBOXGATEWAY_HOSTNAME: ${BOX_HOSTNAME}
-      EOS_MGM_ALIAS: "eos-mgm.demonet"
-      LDAP_ENDPOINT: "ldap.demonet"
-      HOST_FOLDER: ${HOST_FOLDER}
+      EOS_GATEWAY_SELF_REGISTRATION: "true"
+      EOS_GATEWAY_AUTH: "unix"
+      EOS_QUOTAADMIN_SELF_REGISTRATION: "true"
+      DATABASE_BACKEND: "sqlite"
 
-
-  #--- CERNBox Gateway ---#
   cernboxgateway:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernboxgateway:v0
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernboxgateway:v0.8
     container_name: cernboxgateway
     hostname: cernboxgateway
     domainname: demonet
@@ -78,47 +156,43 @@ services:
       - ${HTTPS_PORT}:443
     volumes:
       - ${HOST_FOLDER}:${HOST_FOLDER}
+    env_file:
+      - .env
     environment:
-      DEPLOYMENT_TYPE: "compose"
-      BOX_HOSTNAME: ${BOX_HOSTNAME} # configuration for nginx.eos.conf in /etc/sysconfig/nginx
-      HTTP_PORT: ${HTTP_PORT}
-      HTTPS_PORT: ${HTTPS_PORT}
-      EOS_MGM_ALIAS: "eos-mgm.demonet"
-      EOS_MGM_ALIAS_PORT: ":8000"
-      SWAN_BACKEND: ${BOX_HOSTNAME}
-      SWAN_BACKEND_PORT: ":4443"
+      HOSTNAME: ${BOX_HOSTNAME}
       OWNCLOUD_BACKEND: "cernbox.demonet"
-      OWNCLOUD_BACKEND_PORT: ":80"
-      LDAP_BACKEND1: "ldap.demonet"
-      LDAP_BACKEND2: "ldap.demonet"
+      OWNCLOUD_BACKEND_PORT: ${HTTPS_PORT}
+      SWAN_BACKEND: ${BOX_HOSTNAME}
+      SWAN_BACKEND_PORT: ${SWAN_HTTPS_PORT}
       WEBDAV_CLIENT_CERT_PORT: ${WEBDAV_CLIENT_CERT_PORT}
-      HOST_FOLDER: ${HOST_FOLDER}
+      EOS_GATEWAY_SELF_REGISTRATION: "true"
+      EOS_GATEWAY_AUTH: "https"
+      ESCAPE_LANDING_PAGE: "false"
+      AUTH_TYPE: "local"
+      ADMINS_LIST: "dummy_admin"
 
 
-  #--- SWAN, JupyterHub with CERN customizations ---#
+  #--- SWAN ---#
   jupyterhub:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/jupyterhub:v0
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/jupyterhub:v0.9
     container_name: jupyterhub
     ports:
-      - 4443:443
-    # Enable to spawn new containers from the inside of the JupyterHub container
-    # by exposing the Docker socket of the host machine
+      - ${SWAN_HTTPS_PORT}:${HTTPS_PORT}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:rw
       - ${HOST_FOLDER}:${HOST_FOLDER}
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+    env_file:
+      - .env
     environment:
-      DEPLOYMENT_TYPE: "compose"
-      BOX_HOSTNAME: ${BOX_HOSTNAME}
+      HOSTNAME: ${BOX_HOSTNAME}
       DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME}
-      LDAP_ENDPOINT: "ldap.demonet"
-      HOST_FOLDER: ${HOST_FOLDER}
-      CVMFS_FOLDER: ${CVMFS_FOLDER}
+      CONTAINER_IMAGE: "cernphsft/systemuser:v2.11"
+      AUTH_TYPE: "local"
       EOS_FOLDER: ${EOS_FOLDER}
-      CONTAINER_IMAGE: "cernphsft/systemuser:v2.10"
+      CVMFS_FOLDER: ${CVMFS_FOLDER}
 
-  #--- SWAN, CVMFS software repository ---#
   cvmfs:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/cvmfs:v0
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/cvmfs:v0.5
     container_name: cvmfs
     cap_add:
       - SYS_ADMIN
@@ -128,12 +202,15 @@ services:
       - apparmor=unconfined
     volumes:
       - ${CVMFS_FOLDER}:/cvmfs:shared
+    env_file:
+      - .env
     environment:
-      DEPLOYMENT_TYPE: "compose"
+      CVMFS_UPSTREAM_CONNECTION: "direct"
+      SOFTWARE_STACK: "LCG_91"
+      PLATFORM: "x86_64-slc6-gcc62-opt"
 
-  #--- SWAN, EOS Client with Fuse mount ---#
   eos-fuse:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-fuse:v0
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-fuse:v0.6
     container_name: eos-fuse
     hostname: eos-fuse
     domainname: demonet
@@ -145,14 +222,14 @@ services:
     security_opt:
       - apparmor=unconfined
     volumes:
+      - ${HOST_FOLDER}:${HOST_FOLDER}
       - /sys/fs/cgroup
       - ${EOS_FOLDER}:/eos:shared
-      - ${HOST_FOLDER}:${HOST_FOLDER}
+    env_file:
+      - .env
     environment:
-      DEPLOYMENT_TYPE: "compose"
-      EOS_MGM_ENDPOINT: "eos-mgm.demonet"
-      LDAP_ENDPOINT: "ldap.demonet"
-      HOST_FOLDER: ${HOST_FOLDER}
+      EOS_GATEWAY_SELF_REGISTRATION: "true"
+      EOS_GATEWAY_AUTH: "unix"
 
 
 
@@ -170,63 +247,50 @@ volumes:
   # LDAP
   ldap_database:
     external:
-      name: ldap_database
+      name: ${LDAP_DB}
   ldap_config:
     external:
-      name: ldap_config
+      name: ${LDAP_CF}
+
+  # EOS
+  eos-fst_1:
+    external:
+      name: ${EOS_FST_1}
+  eos-fst_userdata_1:
+    external:
+      name: ${EOS_FST_USERDATA_1}
+
+  eos-fst_2:
+    external:
+      name: ${EOS_FST_2}
+  eos-fst_userdata_2:
+    external:
+      name: ${EOS_FST_USERDATA_2}
+
+  eos-fst_3:
+    external:
+      name: ${EOS_FST_3}
+  eos-fst_userdata_3:
+    external:
+      name: ${EOS_FST_USERDATA_3}
+  
+  eos-fst_4:
+    external:
+      name: ${EOS_FST_4}
+  eos-fst_userdata_4:
+    external:
+      name: ${EOS_FST_USERDATA_4}
+  
+  eos-mgm:
+    external:
+      name: ${EOS_MGM} 
+  
+  eos-mq:
+    external:
+      name: ${EOS_MQ}
 
   # CERNBox
   cernbox_shares_db:
     external:
-      name: cernbox_shares_db
+      name: ${CERNBOX_DB}
 
-  # EOS
-  eos-fst1:
-    external:
-      name: eos-fst1
-  eos-fst1_userdata:
-    external:
-      name: eos-fst1_userdata
-
-  eos-fst2:
-    external:
-      name: eos-fst2
-  eos-fst2_userdata:
-    external:
-      name: eos-fst2_userdata
-
-  eos-fst3:
-    external:
-      name: eos-fst3
-  eos-fst3_userdata:
-    external:
-      name: eos-fst3_userdata
-  
-  eos-fst4:
-    external:
-      name: eos-fst4
-  eos-fst4_userdata:
-    external:
-      name: eos-fst4_userdata
-
-  eos-fst5:
-    external:
-      name: eos-fst5
-  eos-fst5_userdata:
-    external:
-      name: eos-fst5_userdata
-
-  eos-fst6:
-    external:
-      name: eos-fst6
-  eos-fst6_userdata:
-    external:
-      name: eos-fst6_userdata
-  
-  eos-mgm:
-    external:
-      name: eos-mgm 
-  
-  eos-mq:
-    external:
-      name: eos-mq

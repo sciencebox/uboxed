@@ -2,25 +2,45 @@
 # Shared variables and functions
 
 
-# ----- Variables ----- #
-# Versions
+#--- Global Settings ---#
+# Software version
+#TODO: Pin Docker version
 export DOCKERCOMPOSE_VERSION="1.15.0"	# Since 2017-08-08
 
-# Host properties 
+# Host parameters
 export BOX_HOSTNAME=`hostname --fqdn`
 export HTTP_PORT=80
 export HTTPS_PORT=443
+export SWAN_HTTPS_PORT=8443
 export WEBDAV_CLIENT_CERT_PORT=4443
 
-# Temporary folder on the host for deployment orchestration and fuse mounts
-export HOST_FOLDER="/tmp/SWAN-in-Docker"
-export CVMFS_FOLDER=$HOST_FOLDER"/cvmfs_mount"
+# Temporary work folder on the host
+export HOST_FOLDER="/tmp/sciencebox"
 export EOS_FOLDER=$HOST_FOLDER"/eos_mount"
+export CVMFS_FOLDER=$HOST_FOLDER"/cvmfs_mount"
 export CERTS_FOLDER=$HOST_FOLDER"/certs"
 WARNING_FILE=$HOST_FOLDER"/DO_NOT_WRITE_ANY_FILE_HERE"
 
-# Network
+# Docker network
 export DOCKER_NETWORK_NAME="demonet"
+
+# Docker volumes
+export LDAP_DB="ldap_database"
+export LDAP_CF="ldap_config"
+
+export EOS_MGM="eos-mgm"
+export EOS_MQ="eos-mq"
+for i in {1..4}
+do
+  export EOS_FST_$i="eos-fst_"$i
+  export EOS_FST_USERDATA_$i="eos-fst_userdata_"$i
+done
+
+export CERNBOX_DB="cernbox_shares_db"
+
+
+# Docker images
+# TODO: From here on
 
 # Images to be pulled
 NOTEBOOK_IMAGES=(cernphsft/systemuser:v2.10) # , jupyter/minimal-notebook)
@@ -38,26 +58,11 @@ gitlab-registry.cern.ch/cernbox/boxedhub/jupyterhub:v0 \
 gitlab-registry.cern.ch/cernbox/boxedhub/cvmfs:v0 \
 gitlab-registry.cern.ch/cernbox/boxedhub/eos-fuse:v0 )
 
-# LDAP volume names
-export LDAP_DB="ldap_database"
-export LDAP_CF="ldap_config"
-
-# CERNBox volume names
-export CERNBOX_DB="cernbox_shares_db"
-
 ### EOS
 #TODO: This is not used for the moment
 EOS_SUPPORTED_VERSIONS=(AQUAMARINE CITRINE)
 EOS_CODENAME="AQUAMARINE"	# Pick one among EOS_SUPPORTED_VERSIONS
 
-# EOS volume names
-#TODO: These names should be forwarded to the eos deployment script
-#TODO: Used only to define volume names for the moment
-EOSSTORAGE_HEADING="eos-"
-EOSSTORAGE_FST_AMOUNT=6
-EOSSTORAGE_MGM="mgm"
-EOSSTORAGE_MQ="mq"
-EOSSTORAGE_FST_NAME="fst"
 
 
 # ----- Functions ----- #
@@ -413,19 +418,14 @@ docker network inspect $DOCKER_NETWORK_NAME
 function volumes_for_eos {
 echo ""
 echo "Initialize Docker volumes for EOS..."
-EOS_MGM=$EOSSTORAGE_HEADING$EOSSTORAGE_MGM
-EOS_MQ=$EOSSTORAGE_HEADING$EOSSTORAGE_MQ
 docker volume inspect $EOS_MQ >/dev/null 2>&1 || docker volume create --name $EOS_MQ
 docker volume inspect $EOS_MGM >/dev/null 2>&1 || docker volume create --name $EOS_MGM
-for i in {1..6}
+for i in {1..4}
 do
-    # Metadata containers
-    EOS_FST=$EOSSTORAGE_HEADING$EOSSTORAGE_FST_NAME$i
-    docker volume inspect $EOS_FST >/dev/null 2>&1 || docker volume create --name $EOS_FST
-
-    # User data conainers
-    EOS_FST="$EOS_FST"_userdata
-    docker volume inspect $EOS_FST >/dev/null 2>&1 || docker volume create --name $EOS_FST
+    metadata_volume=EOS_FST_"$i"
+    docker volume inspect ${!metadata_volume} >/dev/null 2>&1 || docker volume create --name ${!metadata_volume}
+    userdata_volume=EOS_FST_USERDATA_"$i"
+    docker volume inspect ${!userdata_volume} >/dev/null 2>&1 || docker volume create --name ${!userdata_volume}
 done
 }
 
@@ -448,8 +448,10 @@ docker volume inspect $CERNBOX_DB >/dev/null 2>&1 || docker volume create --name
 function set_the_locks {
 echo ""
 echo "Setting up locks..."
-echo "Locking EOS-Storage -- Needs LDAP"
-touch "$HOST_FOLDER"/eos-storage-lock
+echo "Locking EOS-MGM -- Needs LDAP"
+touch "$HOST_FOLDER"/eos-mgm-lock
+echo "Locking EOS-FSTs -- Need EOS-MGM"
+touch "$HOST_FOLDER"/eos-fst-lock
 echo "Locking eos-fuse client -- Needs EOS storage"
 touch "$HOST_FOLDER"/eos-fuse-lock
 echo "Locking cernbox -- Needs EOS storage"
