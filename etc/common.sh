@@ -44,8 +44,8 @@ ENV_TEMPLATE="env.template"
 DOCKERCOMPOSE_FILE="docker-compose.yml"
 
 # Software version
-#TODO: Pin Docker version
-export DOCKERCOMPOSE_VERSION="1.15.0"   # Since 2017-08-08
+export DOCKER_VERSION="18.03.0.ce"	# Since 2018-08-13
+export DOCKERCOMPOSE_VERSION="1.20.0"   # Since 2018-08-13
 
 # Lock files
 LOCK_FILES="eos-mgm-lock eos-fst-lock eos-fuse-lock cernbox-lock cernboxgateway-lock usercontrol-lock"
@@ -84,17 +84,14 @@ echo "All required services are available."
 # Print a warning about the required software on the host
 function warn_about_software_requirements {
 echo ""
-echo "The following software has to be installed:"
+echo "The following software will be installed or updated:"
 echo -e "\t- wget"
 echo -e "\t- git"
 echo -e "\t- fuse"
 echo -e "\t- netstat"
 echo -e "\t- envsubst"
 echo -e "\t- docker (version 17.03.1-ce or greater)"
-echo -e "\t- docker-compose (version 1.11.2 or greater)"
-echo ""
-echo "Please consider installing it manually or using the script SetupInstall-<YourOS>.sh."
-echo ""
+echo -e "\t- docker-compose (version $DOCEKRCOMPOSE_VERSION)"
 }
 
 # Print a warning about potential interference with EOS || CVMFS processes running on the host
@@ -108,7 +105,7 @@ case "$response" in
     echo "Ok."
   ;;
   *)
-    echo "Cannot continue. Exiting..."
+    echo "Exiting..."
     echo ""
     exit 1
  ;;
@@ -153,9 +150,9 @@ else
       return 0
     ;;
     *)
-      echo "Cannot continue. Exiting..."
+      echo "Exiting..."
       echo ""
-      exit 1
+      exit
     ;;
   esac
 fi
