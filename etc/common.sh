@@ -47,6 +47,9 @@ DOCKERCOMPOSE_FILE="docker-compose.yml"
 #TODO: Pin Docker version
 export DOCKERCOMPOSE_VERSION="1.15.0"   # Since 2017-08-08
 
+# Lock files
+LOCK_FILES="eos-mgm-lock eos-fst-lock eos-fuse-lock cernbox-lock cernboxgateway-lock usercontrol-lock"
+
 
 
 # ----- Functions ----- #
@@ -199,11 +202,17 @@ then
   rmdir $EOS_FOLDER
 
   # Remove certificates (making sure to have the folder first)
-  if [ -d "$CERTS_FOLDER" ]; then
+  if [ -d $CERTS_FOLDER ]; then
     rm "$CERTS_FOLDER"/boxed.key
     rm "$CERTS_FOLDER"/boxed.crt
     rmdir $CERTS_FOLDER
   fi
+
+  # Remove the lock files
+  for i in $LOCK_FILES
+  do
+    rm "$HOST_FOLDER/$i"
+  done
 
   # Remove the warning file
   rm $WARNING_FILE
@@ -354,19 +363,10 @@ echo "Ok."
 function set_the_locks {
 echo ""
 echo "Setting up locks..."
-
-echo "Locking EOS-MGM (needs LDAP)"
-touch "$HOST_FOLDER"/eos-mgm-lock
-echo "Locking EOS-FSTs (need EOS-MGM)"
-touch "$HOST_FOLDER"/eos-fst-lock
-echo "Locking EOS Fuse client (needs EOS storage)"
-touch "$HOST_FOLDER"/eos-fuse-lock
-echo "Locking CERNBox (needs EOS storage)"
-touch "$HOST_FOLDER"/cernbox-lock
-echo "Locking CERNBox Gateway (needs EOS storage)"
-touch "$HOST_FOLDER"/cernboxgateway-lock
-echo "Locking User"
-touch "$HOST_FOLDER"/usercontrol-lock
+for i in $LOCK_FILES
+do
+  touch "$HOST_FOLDER/$i"
+done
 }
 
 # Check if you have certificates for replacing the default ones in Docker images
