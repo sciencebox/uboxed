@@ -10,7 +10,9 @@ install_software()
 	yum -y install \
 			wget \
 			git \
-			fuse
+			fuse \
+			net-tools \
+			envsubst
 
 	echo "Installing docker..."
 	wget https://get.docker.com -O /tmp/getdocker.sh
