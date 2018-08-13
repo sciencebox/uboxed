@@ -94,20 +94,6 @@ echo "Please consider installing it manually or using the script SetupInstall-<Y
 echo ""
 }
 
-# Check to have a valid EOS codename
-function check_eos_codename {
-for ver in ${EOS_SUPPORTED_VERSIONS[*]};
-do
-        if [[ "$ver" == "$EOS_CODENAME" ]];
-        then
-		echo "I have a valid EOS codename."
-                return
-        fi
-done
-echo "Unknown EOS codename. Cannot continue."
-exit 1
-}
-
 # Wait for some time so that the user reads
 function wait_for_user_read {
 WAIT_FOR_USER_READ=10
