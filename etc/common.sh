@@ -44,7 +44,7 @@ ENV_TEMPLATE="env.template"
 DOCKERCOMPOSE_FILE="docker-compose.yml"
 
 # Software version
-export DOCKER_VERSION="18.03.0.ce"	# Since 2018-08-13
+export DOCKER_VERSION="18.03.0"		# Since 2018-08-13
 export DOCKERCOMPOSE_VERSION="1.20.0"   # Since 2018-08-13
 
 # Lock files

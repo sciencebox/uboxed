@@ -15,7 +15,7 @@ install_software()
     envsubst
 
   echo "Installing docker..."
-  yum -y install https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-"$DOCKER_VERSION"-1.el7.centos.x86_64.rpm
+  yum -y install https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-"$DOCKER_VERSION".ce-1.el7.centos.x86_64.rpm
 
   echo "Installing docker-compose..."
   wget https://github.com/docker/compose/releases/download/"$DOCKERCOMPOSE_VERSION"/docker-compose-Linux-x86_64 -O /usr/local/bin/docker-compose
