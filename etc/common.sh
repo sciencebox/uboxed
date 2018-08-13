@@ -37,37 +37,15 @@ done
 
 export CERNBOX_DB="cernbox_shares_db"
 
+# Template file
+ENV_TEMPLATE="env.template"
 
-
+# Docker-compose file
+DOCKERCOMPOSE_FILE="docker-compose.yml"
 
 # Software version
 #TODO: Pin Docker version
 export DOCKERCOMPOSE_VERSION="1.15.0"   # Since 2017-08-08
-
-
-# Docker images
-# TODO: From here on
-
-# Images to be pulled
-NOTEBOOK_IMAGES=(cernphsft/systemuser:v2.10) # , jupyter/minimal-notebook)
-
-#SYS_IMAGES=(cernbox cernboxgateway eos-controller eos-storage ldap swan_cvmfs swan_eos-fuse swan_jupyterhub)
-# Deprecated since the introduction of Images for Kubernetes
-SYSIM_PRIVATE=false
-SYSIM_REPO="gitlab-registry.cern.ch/cernbox/boxedhub"
-SYS_IMAGES=(gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0 \
-gitlab-registry.cern.ch/cernbox/boxedhub/eos-controller:latest \
-gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0 \
-gitlab-registry.cern.ch/cernbox/boxedhub/cernbox:v0 \
-gitlab-registry.cern.ch/cernbox/boxedhub/cernboxgateway:v0 \
-gitlab-registry.cern.ch/cernbox/boxedhub/jupyterhub:v0 \
-gitlab-registry.cern.ch/cernbox/boxedhub/cvmfs:v0 \
-gitlab-registry.cern.ch/cernbox/boxedhub/eos-fuse:v0 )
-
-### EOS
-#TODO: This is not used for the moment
-EOS_SUPPORTED_VERSIONS=(AQUAMARINE CITRINE)
-EOS_CODENAME="AQUAMARINE"	# Pick one among EOS_SUPPORTED_VERSIONS
 
 
 
@@ -107,6 +85,7 @@ echo "The following software has to be installed:"
 echo -e "\t- wget"
 echo -e "\t- git"
 echo -e "\t- fuse"
+echo -e "\t- netstat"
 echo -e "\t- envsubst"
 echo -e "\t- docker (version 17.03.1-ce or greater)"
 echo -e "\t- docker-compose (version 1.11.2 or greater)"
@@ -137,11 +116,13 @@ esac
 function create_env_file {
 echo ""
 echo "Creating environment file..."
-envsubst < env.template > .env
+envsubst < $ENV_TEMPLATE > .env
 }
 
 
+
 ### Clean-Up
+
 # Warn about single-user servers running
 function check_single_user_container_running {
 RUNNING_CONTAINERS=`docker ps -a | tail -n+2 | awk '{print $NF}' | grep '^jupyter-' | tr '\n' ' '`
@@ -250,6 +231,178 @@ done
 
 
 
+### Preparation
+# Check to have (or create) a Docker network to allow communications among containers
+function docker_network {
+echo ""
+echo "Setting up Docker network..."
+docker network inspect $DOCKER_NETWORK_NAME >/dev/null 2>&1 || docker network create $DOCKER_NETWORK_NAME
+docker network inspect $DOCKER_NETWORK_NAME
+}
+
+# Initialize volumes for LDAP --> Make user accounts persistent
+function volumes_for_ldap {
+echo ""
+echo "Initialize Docker volume for LDAP..."
+docker volume inspect $LDAP_DB >/dev/null 2>&1 || docker volume create --name $LDAP_DB
+docker volume inspect $LDAP_CF >/dev/null 2>&1 || docker volume create --name $LDAP_CF
+}
+
+# Initialize volumes for EOS --> Make storage persistent
+function volumes_for_eos {
+echo ""
+echo "Initialize Docker volumes for EOS..."
+docker volume inspect $EOS_MQ >/dev/null 2>&1 || docker volume create --name $EOS_MQ
+docker volume inspect $EOS_MGM >/dev/null 2>&1 || docker volume create --name $EOS_MGM
+for i in {1..4}
+do
+  metadata_volume=EOS_FST_"$i"
+  docker volume inspect ${!metadata_volume} >/dev/null 2>&1 || docker volume create --name ${!metadata_volume}
+  userdata_volume=EOS_FST_USERDATA_"$i"
+  docker volume inspect ${!userdata_volume} >/dev/null 2>&1 || docker volume create --name ${!userdata_volume}
+done
+}
+
+# Initialize volumes from CERNBox --> Make sharing settings persistent
+function volumes_for_cernbox {
+echo ""
+echo "Initialize Docker volume for CERNBox..."
+docker volume inspect $CERNBOX_DB >/dev/null 2>&1 || docker volume create --name $CERNBOX_DB
+}
+
+# Pull single-user notebook image
+function fetch_singleuser_notebook_image {
+echo ""
+echo "Pulling Single-User notebook image..."
+docker pull $NOTEBOOK_IMAGE
+}
+
+# Pull ScienceBox images
+function fetch_sciencebox_images {
+echo ""
+echo "Pulling system component images..."
+
+SCIENCEBOX_IMAGES=`cat $DOCKERCOMPOSE_FILE | grep "image:" | sed -e 's/^[[:space:]]*//' | cut -d ' ' -f 2 | sort | uniq | tr '\n' ' '`
+for i in $SCIENCEBOX_IMAGES
+do
+  docker pull $i
+done
+}
+
+# Check to have all the needed images
+function check_to_have_images {
+# Contrast two arrays checking that all elements of the first appear in the second one
+# Input: $1==required_images (as array)   $2==available_images (as array)
+declare -a required=("${!1}")
+declare -a available=("${!2}")
+
+for req in "${required[@]}";
+do
+  found=0
+  for ava in "${available[@]}";
+  do
+    if [[ "$req" == "$ava" ]];
+    then
+      found=1
+      break
+    fi
+  done
+  if [[ "$found" -eq "0" ]];
+  then
+    echo  "Unable to find $req image locally. Cannot continue."
+    exit 1
+  fi
+done
+}
+
+function check_to_have_all_images {
+echo ""
+echo "Check to have all the required images..."
+
+read -r -a LOCAL_IMAGES <<< `docker image ls | tail -n+2 | awk '{print $1":"$2}' | tr '\n' ' '`
+
+read -r -a SCIENCEBOX_LIST <<< "$SCIENCEBOX_IMAGES"
+check_to_have_images SCIENCEBOX_LIST[@] LOCAL_IMAGES[@]
+
+read -r -a NOTEBOOK_LIST <<< "$NOTEBOOK_IMAGE"
+check_to_have_images NOTEBOOK_LIST[@] LOCAL_IMAGES[@]
+
+echo "Ok."
+}
+
+function check_ports_availability {
+echo ""
+echo "Check availability of ports $HTTP_PORT and $HTTPS_PORT..."
+netstat -ltnp | grep "tcp" | grep -v "^tcp6" | while read -r line; 
+do
+  port_no=`echo $line | tr -s ' ' | cut -d ' ' -f 4 | cut -d ':' -f 2`
+  process=`echo $line | tr -s ' ' | cut -d ' ' -f 7-`
+
+  if [[ "$port_no" -eq "$HTTP_PORT" || "$port_no" -eq "$HTTPS_PORT" ]];
+  then
+    echo "Port $port_no is being used by process $process. Cannot continue."
+    echo "Please stop the process or set another port in etc/common.sh"
+    exit 1
+  fi
+done
+[[ $? != 0 ]] && exit $?
+
+echo "Ok."
+}
+
+# Set locks to control dependencies and execution order
+function set_the_locks {
+echo ""
+echo "Setting up locks..."
+
+echo "Locking EOS-MGM (needs LDAP)"
+touch "$HOST_FOLDER"/eos-mgm-lock
+echo "Locking EOS-FSTs (need EOS-MGM)"
+touch "$HOST_FOLDER"/eos-fst-lock
+echo "Locking EOS Fuse client (needs EOS storage)"
+touch "$HOST_FOLDER"/eos-fuse-lock
+echo "Locking CERNBox (needs EOS storage)"
+touch "$HOST_FOLDER"/cernbox-lock
+echo "Locking CERNBox Gateway (needs EOS storage)"
+touch "$HOST_FOLDER"/cernboxgateway-lock
+echo "Locking User"
+touch "$HOST_FOLDER"/usercontrol-lock
+}
+
+# Check if you have certificates for replacing the default ones in Docker images
+function check_override_certificates {
+echo ""
+echo "Checking the availability of new certificates for HTTPS..."
+if [[ -f "$RUN_FOLDER"/certs/boxed.crt && -f "$RUN_FOLDER"/certs/boxed.key ]]; then
+  return 0
+fi
+return 1
+}
+
+# (If needed) Copy the available certificates for HTTPS in the temporary folder
+function copy_override_certificates {
+echo "Copying new certificates for HTTPS..."
+mkdir -p $CERTS_FOLDER
+cp "$RUN_FOLDER"/certs/boxed.crt "$CERTS_FOLDER"/boxed.crt
+cp "$RUN_FOLDER"/certs/boxed.key "$CERTS_FOLDER"/boxed.key
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###
+
 
 # Wait for some time so that the user reads
 function wait_for_user_read {
@@ -288,178 +441,5 @@ else
 		return 0
 	fi
 fi
-}
-
-
-# Check if you have certificates for replacing the default ones in Docker images
-function check_override_certificates {
-echo ""
-echo "Checking the availability of new certificates for HTTPS..."
-if [[ -f "$RUN_FOLDER"/certs/boxed.crt && -f "$RUN_FOLDER"/certs/boxed.key ]]; then
-	return 0
-fi
-return 1
-}
-
-# (Eventually) Copy the available certificates for HTTPS in the temporary folder
-function copy_override_certificates {
-echo "Copying new certificates for HTTPS..."
-mkdir -p $CERTS_FOLDER
-cp "$RUN_FOLDER"/certs/boxed.crt "$CERTS_FOLDER"/boxed.crt
-cp "$RUN_FOLDER"/certs/boxed.key "$CERTS_FOLDER"/boxed.key
-}
-
-
-# PULL DOCKER IMAGES
-# Single-user Jupyter Server
-function fetch_singleuser_notebook_image {
-# See: https://github.com/cernphsft/systemuser
-echo ""
-echo "Pulling Single-User notebook image..."
-for i in ${NOTEBOOK_IMAGES[*]};
-do
-        docker pull $i
-done
-}
-
-# All the other system components
-function fetch_system_component_images {
-echo ""
-echo "Pulling system component images..."
-
-if [ `echo $SYSIM_PRIVATE | tr '[:upper:]' '[:lower:]'` = "true" ]; then
-	echo "Log in to remote repository"
-	docker login $SYSIM_LOGIN
-fi
-
-for i in ${SYS_IMAGES[*]};
-do
-	docker pull $i
-done
-#for i in ${SYS_IMAGES[*]};
-#do
-#        docker pull "$SYSIM_REPO":"$i"
-#        docker tag "$SYSIM_REPO":"$i" "$i":latest
-#	docker rmi "$SYSIM_REPO":"$i"
-#done
-}
-
-# Check to have fetched all the images
-function check_to_have_images {
-# Contrast two arrays checking that all elements of the first appear in the second one
-# Input: $1==required_images (as array)   $2==available_images (as array)
-        declare -a required=("${!1}")
-        declare -a available=("${!2}")
-
-        for req in "${required[@]}";
-        do
-                found=0
-                for ava in "${available[@]}";
-                do
-                        if [[ "$req" == "$ava" ]];
-                        then
-                                found=1
-                                break
-                        fi
-                done
-                if [[ "$found" -eq "0" ]];
-                then
-                        echo  "Unable to find $req image locally. Cannot continue."
-                        exit 1
-                fi
-        done
-}
-
-function check_to_have_all_images {
-        echo ""
-        echo "Check to have all the required images..."
-        # Check to have system component images
-        #LOCAL_IMAGES=`docker image ls | tail -n+2 | awk '{print $1}' | sort | tr '\n' ' '`
-        read -r -a LOCAL_IMAGES <<< `docker image ls | tail -n+2 | awk '{print $1":"$2}' | tr '\n' ' '`
-        check_to_have_images SYS_IMAGES[@] LOCAL_IMAGES[@]
-
-        # Check to have single user notebook images -- tag column is part of the check
-        #LOCAL_IMAGES=`docker image ls | tail -n+2 | awk '{print $1":"$2}' | tr '\n' ' '`
-        read -r -a LOCAL_IMAGES <<< `docker image ls | tail -n+2 | awk '{print $1":"$2}' | tr '\n' ' '`
-        check_to_have_images NOTEBOOK_IMAGES[@] LOCAL_IMAGES[@]
-        echo "Ok."
-}
-
-function check_ports_availability {
-	echo ""
-	echo "Check availability of ports $HTTP_PORT and $HTTPS_PORT..."
-	netstat -ltnp | grep "tcp" | grep -v "^tcp6" | while read -r line; 
-	do
-	        port_no=`echo $line | tr -s ' ' | cut -d ' ' -f 4 | cut -d ':' -f 2`
-	        process=`echo $line | tr -s ' ' | cut -d ' ' -f 7-`
-
-	        if [[ "$port_no" -eq "$HTTP_PORT" || "$port_no" -eq "$HTTPS_PORT" ]];
-	        then 
-	                echo "Port $port_no is being used by process $process. Cannot continue."
-	                echo "Please stop the process or set another port in etc/common.sh"
-	                exit 1
-	        fi
-	done
-	[[ $? != 0 ]] && exit $?
-	echo "Ok."
-}
-
-
-# DOCKER DEPLOYMENT
-
-# Check to have (or create) a Docker network to allow communications among containers
-function docker_network {
-echo ""
-echo "Setting up Docker network..."
-docker network inspect $DOCKER_NETWORK_NAME >/dev/null 2>&1 || docker network create $DOCKER_NETWORK_NAME
-docker network inspect $DOCKER_NETWORK_NAME
-}
-
-# Initialize volumes for EOS --> Make storage persistent
-function volumes_for_eos {
-echo ""
-echo "Initialize Docker volumes for EOS..."
-docker volume inspect $EOS_MQ >/dev/null 2>&1 || docker volume create --name $EOS_MQ
-docker volume inspect $EOS_MGM >/dev/null 2>&1 || docker volume create --name $EOS_MGM
-for i in {1..4}
-do
-    metadata_volume=EOS_FST_"$i"
-    docker volume inspect ${!metadata_volume} >/dev/null 2>&1 || docker volume create --name ${!metadata_volume}
-    userdata_volume=EOS_FST_USERDATA_"$i"
-    docker volume inspect ${!userdata_volume} >/dev/null 2>&1 || docker volume create --name ${!userdata_volume}
-done
-}
-
-# Initialize volumes for LDAP
-function volumes_for_ldap {
-echo ""
-echo "Initialize Docker volume for LDAP..."
-docker volume inspect $LDAP_DB >/dev/null 2>&1 || docker volume create --name $LDAP_DB
-docker volume inspect $LDAP_CF >/dev/null 2>&1 || docker volume create --name $LDAP_CF
-}
-
-# Initialize volumes from CERNBox --> Make sharing settings persistent
-function volumes_for_cernbox {
-echo ""
-echo "Initialize Docker volume for CERNBox..."
-docker volume inspect $CERNBOX_DB >/dev/null 2>&1 || docker volume create --name $CERNBOX_DB
-}
-
-# Set locks to control dependencies and execution order
-function set_the_locks {
-echo ""
-echo "Setting up locks..."
-echo "Locking EOS-MGM -- Needs LDAP"
-touch "$HOST_FOLDER"/eos-mgm-lock
-echo "Locking EOS-FSTs -- Need EOS-MGM"
-touch "$HOST_FOLDER"/eos-fst-lock
-echo "Locking eos-fuse client -- Needs EOS storage"
-touch "$HOST_FOLDER"/eos-fuse-lock
-echo "Locking cernbox -- Needs EOS storage"
-touch "$HOST_FOLDER"/cernbox-lock
-echo "Locking cernboxgateway -- Needs EOS storage"
-touch "$HOST_FOLDER"/cernboxgateway-lock
-
-touch "$HOST_FOLDER"/usercontrol-lock
 }
 

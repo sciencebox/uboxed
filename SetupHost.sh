@@ -5,15 +5,13 @@ export RUN_FOLDER="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"	# This is 
 # Import variables and functions
 source etc/common.sh
 
-
-# ----- DEPLOY ----- #
 # Preliminary Checks
 echo ""
 echo "Preliminary checks..."
 need_root
-#check_required_services_are_available
-#warn_about_software_requirements
-#warn_about_interfence_eos_cvmfs
+check_required_services_are_available
+warn_about_software_requirements
+warn_about_interfence_eos_cvmfs
 create_env_file
 
 # Clean-Up
@@ -24,23 +22,22 @@ initialize_folders_for_fusemount
 
 # Preparation
 docker_network
-volumes_for_eos
 volumes_for_ldap
+volumes_for_eos
 volumes_for_cernbox
-#fetch_singleuser_notebook_image
-#fetch_system_component_images
-#check_to_have_all_images
+fetch_singleuser_notebook_image
+fetch_sciencebox_images
+check_to_have_all_images
 check_ports_availability
 set_the_locks
 if check_override_certificates; then
   copy_override_certificates
 fi
 
-
 # Run via Docker Compose
 echo ""
 echo "Run via docker-compose..."
-docker-compose up 
+docker-compose -f $DOCKERCOMPOSE_FILE up
 
 #echo
 #echo "Configuring..."
@@ -51,6 +48,7 @@ docker-compose up
 
 echo ""
 echo "Done!"
+echo ""
 echo "Access to log files: docker-compose logs -f"
 echo "Or get them sorted in time: docker-compose logs -t | sort -t '|' -k +2d"
 echo "--> Please source the uboxed/etc/common.sh file first! <--"
