@@ -90,8 +90,8 @@ echo -e "\t- git"
 echo -e "\t- fuse"
 echo -e "\t- netstat"
 echo -e "\t- envsubst"
-echo -e "\t- docker (version 17.03.1-ce or greater)"
-echo -e "\t- docker-compose (version $DOCEKRCOMPOSE_VERSION)"
+echo -e "\t- docker (version $DOCKER_VERSION)"
+echo -e "\t- docker-compose (version $DOCKERCOMPOSE_VERSION)"
 }
 
 # Print a warning about potential interference with EOS || CVMFS processes running on the host
