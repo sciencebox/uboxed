@@ -15,12 +15,7 @@ install_software()
     envsubst
 
   echo "Installing docker..."
-  wget https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-"$DOCKER_VERSION"-1.el7.centos.x86_64.rpm
-  wget https://download.docker.com/linux/centos/7/`uname -m`	/stable/Packages/docker-ce-18.03.0.ce-1.el7.centos.x86_64.rpm
-  wget https://get.docker.com -O /tmp/getdocker.sh
-  mkdir -p /var/lib/docker
-  bash /tmp/getdocker.sh
-  rm /tmp/getdocker.sh
+  yum -y install https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-"$DOCKER_VERSION"-1.el7.centos.x86_64.rpm
 
   echo "Installing docker-compose..."
   wget https://github.com/docker/compose/releases/download/"$DOCKERCOMPOSE_VERSION"/docker-compose-Linux-x86_64 -O /usr/local/bin/docker-compose
@@ -38,7 +33,7 @@ need_root
 # Raise warning about software installation
 warn_about_software_requirements
 
-echo""
+echo ""
 read -r -p "Do you want to proceed with the installation [y/N] " response
 case "$response" in
   [yY]) 
