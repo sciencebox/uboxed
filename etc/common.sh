@@ -389,33 +389,7 @@ cp "$RUN_FOLDER"/certs/boxed.key "$CERTS_FOLDER"/boxed.key
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-###
-
-
-# Wait for some time so that the user reads
-function wait_for_user_read {
-WAIT_FOR_USER_READ=10
-while [ $WAIT_FOR_USER_READ -gt 0 ]; do
-	echo -ne "\r$WAIT_FOR_USER_READ...\033[0K"
-	sleep 1
-	WAIT_FOR_USER_READ=$((WAIT_FOR_USER_READ-1))
-done
-echo "Continuing..."
-}
-
-# CLEANUP
+### Stop Services
 
 # Remove docker network
 function docker_network_remove {
@@ -425,21 +399,20 @@ echo "Removing Docker network $DOCKER_NETWORK_NAME"
 # Check the network exists
 docker network inspect $DOCKER_NETWORK_NAME > /dev/null 2>&1
 if [[ "$?" -gt "0" ]]; then
-	echo "Docker network $DOCKER_NETWORK_NAME does not exist."
-	return 0
+  echo "Docker network $DOCKER_NETWORK_NAME does not exist."
+  return 0
 else
-	# If exists, check for connected containers
-	docker network inspect $DOCKER_NETWORK_NAME | grep "\"Containers\": {}" >/dev/null 2>&1
-	if [[ "$?" -gt 0 ]]; then
-	        echo "Cannot remove Docker network $DOCKER_NETWORK_NAME"
-	        echo "Some containers are still connected to it."
-	        docker network inspect $DOCKER_NETWORK_NAME
-        	return 1
-	else
-		# If exists and no connected containers, remove it!
-	        docker network remove $DOCKER_NETWORK_NAME
-		return 0
-	fi
+  # If exists, check for connected containers
+  docker network inspect $DOCKER_NETWORK_NAME | grep "\"Containers\": {}" >/dev/null 2>&1
+  if [[ "$?" -gt 0 ]]; then
+    echo "Cannot remove Docker network $DOCKER_NETWORK_NAME"
+    echo "Some containers are still connected to it."
+    docker network inspect $DOCKER_NETWORK_NAME
+    return 1
+  else
+    # If exists and no connected containers, remove it!
+    docker network remove $DOCKER_NETWORK_NAME
+    return 0
+  fi
 fi
 }
-
