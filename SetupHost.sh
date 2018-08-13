@@ -10,7 +10,6 @@ echo ""
 echo "Preliminary checks..."
 need_root
 check_required_services_are_available
-#warn_about_software_requirements
 warn_about_interfence_eos_cvmfs
 create_env_file
 
