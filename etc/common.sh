@@ -72,12 +72,32 @@ EOS_CODENAME="AQUAMARINE"	# Pick one among EOS_SUPPORTED_VERSIONS
 
 
 # ----- Functions ----- #
+
+### Preliminary Checks 
+
 # Check to be root
 function need_root {
 if [ "$EUID" -ne 0 ]; then
-	echo "Please run as root"
-	exit 1
+  echo "Please run as root"
+  exit 1
 fi
+}
+
+# Check we have required services and tools
+function check_required_services_are_available {
+# Check docker daemon in running state
+if [ "`pgrep docker`" == "" ]; then
+  echo "Docker daemon is not running. Cannot continue."
+  exit 1
+fi
+
+# Check docker-compose is available and returns something when asking for version
+if [ ! -f /usr/local/bin/docker-compose ] || [ "`docker-compose --version`" == "" ]; then
+  echo "Docker-compose is not available. Cannot continue."
+  exit 1
+fi
+
+echo "All required services are available."
 }
 
 # Print a warning about the required software on the host
@@ -85,14 +105,151 @@ function warn_about_software_requirements {
 echo ""
 echo "The following software has to be installed:"
 echo -e "\t- wget"
-echo -e "\t- fuse"
 echo -e "\t- git"
+echo -e "\t- fuse"
+echo -e "\t- envsubst"
 echo -e "\t- docker (version 17.03.1-ce or greater)"
 echo -e "\t- docker-compose (version 1.11.2 or greater)"
 echo ""
 echo "Please consider installing it manually or using the script SetupInstall-<YourOS>.sh."
 echo ""
 }
+
+# Print a warning about potential interference with EOS || CVMFS processes running on the host
+function warn_about_interfence_eos_cvmfs {
+echo ""
+echo "WARNING: The deployment interferes with eventual CVMFS and EOS clients running on the host."
+echo "All the running clients will be killed before proceeding."
+read -r -p "Do you want to continue [y/N] " response
+case "$response" in
+  [yY])
+    echo "Ok."
+  ;;
+  *)
+    echo "Cannot continue. Exiting..."
+    echo ""
+    exit 1
+ ;;
+esac
+}
+
+# Create Environment file with variables defined above
+function create_env_file {
+echo ""
+echo "Creating environment file..."
+envsubst < env.template > .env
+}
+
+
+### Clean-Up
+# Warn about single-user servers running
+function check_single_user_container_running {
+RUNNING_CONTAINERS=`docker ps -a | tail -n+2 | awk '{print $NF}' | grep '^jupyter-' | tr '\n' ' '`
+
+if [[ -z $RUNNING_CONTAINERS ]];
+then
+  return 0
+else
+  echo ""
+  echo "WARNING: The following SWAN user's servers are in execution"
+  for i in $RUNNING_CONTAINERS; do echo "  - $i"; done
+
+  echo ""
+  if  [[ "$1" == "start" ]]; then
+    echo "Please consider that their normal operation might be interrupted or that they might prevent some services to restart."
+  elif [[ "$1" == "stop" ]]; then
+    echo "Please consider that their normal operation will be interrupted."
+  fi
+
+  echo "It is recommended to stop SWAN user's servers before proceeding."
+  read -r -p "Do you want to continue anyway [y/N] " response
+  case "$response" in
+    [yY])
+      echo "Ok."
+      return 0
+    ;;
+    *)
+      echo "Cannot continue. Exiting..."
+      echo ""
+      exit 1
+    ;;
+  esac
+fi
+}
+
+# Remove old containers
+function stop_and_remove_containers {
+# WARNING: This is not going to work in case a single-user server is still running, e.g., jupyter-userN
+#          Single-user's servers keep CVMFS and EOS locked due to internal mount
+echo ""
+echo "Removing existing containers (if any)..."
+if [ -z $1 ]; then
+  docker-compose down -v
+else
+  docker-compose -f $1 down -v
+fi
+}
+
+
+# Remove folders with EOS || CVMFS fuse mount on the host
+function cleanup_folders_for_fusemount {
+echo ""
+echo "Cleaning up folders..."
+#killall cvmfs2 2>/dev/null
+#killall eos 2>/dev/null
+#sleep 1
+
+if [[ -d $HOST_FOLDER ]];
+then
+  # Unmount and remove CVMFS
+  for i in `ls $CVMFS_FOLDER`
+  do
+    fusermount -u $CVMFS_FOLDER/$i
+    rmdir $CVMFS_FOLDER/$i
+  done
+  fusermount -u $CVMFS_FOLDER
+  rmdir $CVMFS_FOLDER
+
+  # Unmount and remove EOS
+  while [[ ! -z `mount -l | grep $EOS_FOLDER | head -n 1` ]];
+  do
+    fusermount -u $EOS_FOLDER
+  done
+  rmdir $EOS_FOLDER
+
+  # Remove certificates (making sure to have the folder first)
+  if [ -d "$CERTS_FOLDER" ]; then
+    rm "$CERTS_FOLDER"/boxed.key
+    rm "$CERTS_FOLDER"/boxed.crt
+    rmdir $CERTS_FOLDER
+  fi
+
+  # Remove the warning file
+  rm $WARNING_FILE
+
+  # Remove the entire directory
+  rmdir $HOST_FOLDER
+fi
+}
+
+# Re-initialize folders with EOS || CVMFS fuse mount 
+function initialize_folders_for_fusemount {
+echo ""
+echo "Initializing folders..."
+mkdir -p $HOST_FOLDER
+touch $WARNING_FILE
+
+# Explicitly set CVMFS and EOS folders as shared
+for i in $CVMFS_FOLDER $EOS_FOLDER
+do
+  mkdir -p $i
+  mount --bind $i $i
+  mount --make-shared $i
+done
+}
+
+
+
 
 # Wait for some time so that the user reads
 function wait_for_user_read {
@@ -105,122 +262,7 @@ done
 echo "Continuing..."
 }
 
-# Print a warning about potential interference with EOS || CVMFS processes running on the host
-function warn_about_interfence_eos_cvmfs {
-echo ""
-echo "WARNING: The deployment interferes with eventual CVMFS and EOS clients running on the host."
-echo "All the running clients will be killed before proceeding."
-read -r -p "Do you want to continue [y/N] " response
-case "$response" in
-    [yY])
-        echo "Ok."
-        ;;
-    *)
-        echo "Cannot continue. Exiting..."
-        echo ""
-        exit 1
-        ;;
-esac
-}
-
-
 # CLEANUP
-# Warn about eventual single user's servers running
-function check_single_user_container_running {
-RUNNING_CONTAINERS=`docker ps -a | tail -n+2 | awk '{print $NF}' | grep '^jupyter-' | tr '\n' ' '`
-
-if [[ -z $RUNNING_CONTAINERS ]];
-then
-	return 0
-else
-	echo ""
-	echo "WARNING: The following SWAN user's servers are in execution"
-        for i in $RUNNING_CONTAINERS; do echo "  - $i"; done
-
-	echo ""
-	if  [[ "$1" == "start" ]]; then
-	        echo "Please consider that their normal operation might be interrupted or that they might prevent some services to restart."
-	elif [[ "$1" == "stop" ]]; then
-	        echo "Please consider that their normal operation will be interrupted."
-	fi
-        echo "It is recommended to stop user's servers before proceeding."
-	read -r -p "Do you want to continue anyway [y/N] " response
-	case "$response" in
-	  [yY])
-		echo "Ok."
-		return 0
-		;;
-	  *)
-		echo "Cannot continue. Exiting..."
-		echo ""
-		exit 1
-		;;
-	esac
-fi
-}
-
-# Remove old containers
-function stop_and_remove_containers {
-# WARNING: This is not going to work in case a single-user server is still running, e.g., jupyter-userN
-#          Single-user's servers keep CVMFS and EOS locked due to internal mount
-
-echo ""
-echo "Removing existing containers (if any)..."
-# Stop the containers managed by docker-compose (and remove dangling volumes)
-if [ -z $1 ]; then
-	docker-compose down -v
-else
-	docker-compose -f $1 down -v
-fi
-#docker stop jupyterhub ldap ldap-ldapadd cvmfs eos-fuse cernbox cernboxgateway 2>/dev/null
-#docker rm -f jupyterhub ldap ldap-ldapadd cvmfs eos-fuse cernbox cernboxgateway 2>/dev/null
-
-# NOTE: Containers for EOS storage are not managed by docker-compose
-#       They need to be stopped and removed manually
-docker stop eos-fst{1..6} eos-mq eos-mgm 2>/dev/null
-docker rm -f eos-fst{1..6} eos-mq eos-mgm eos-controller 2>/dev/null
-}
-
-# Remove folders with EOS || CVMFS fuse mount on the host
-function cleanup_folders_for_fusemount {
-echo ""
-echo "Cleaning up folders..."
-killall cvmfs2 2>/dev/null
-killall eos 2>/dev/null
-sleep 1
-
-if [[ -d $HOST_FOLDER ]];
-then
-	# Unmount and remove CVMFS
-	for i in `ls $CVMFS_FOLDER`
-	do
-	        fusermount -u $CVMFS_FOLDER/$i
-	        rmdir $CVMFS_FOLDER/$i
-	done
-	fusermount -u $CVMFS_FOLDER
-	rmdir $CVMFS_FOLDER
-
-	# Unmount and remove EOS
-	while [[ ! -z `mount -l | grep $EOS_FOLDER | head -n 1` ]];
-	do
-	        fusermount -u $EOS_FOLDER
-	done
-	rmdir $EOS_FOLDER
-
-	# Remove certificates (making sure to have the folder first)
-	if [ -d "$CERTS_FOLDER" ]; then
-		rm "$CERTS_FOLDER"/boxed.key
-	        rm "$CERTS_FOLDER"/boxed.crt 
-	        rmdir $CERTS_FOLDER
-	fi
-
-	# Remove the warning file
-	rm $WARNING_FILE
-
-	# Remove the entire directory
-	rmdir $HOST_FOLDER
-fi
-}
 
 # Remove docker network
 function docker_network_remove {
@@ -248,22 +290,6 @@ else
 fi
 }
 
-
-# Re-initialize folders with EOS || CVMFS fuse mount 
-function initialize_folders_for_fusemount {
-echo ""
-echo "Initializing folders..."
-mkdir -p $HOST_FOLDER
-touch $WARNING_FILE
-
-# Explicitly set CVMFS and EOS folders as shared
-for i in $CVMFS_FOLDER $EOS_FOLDER
-do
-	mkdir -p $i
-	mount --bind $i $i
-	mount --make-shared $i
-done
-}
 
 # Check if you have certificates for replacing the default ones in Docker images
 function check_override_certificates {
@@ -380,23 +406,6 @@ function check_ports_availability {
 
 
 # DOCKER DEPLOYMENT
-function check_required_services_are_available {
-# Check docker daemon in running state
-	# TODO: Would be preferrable to use the exit code of `service docker status`, 
-	#	but it always returns 0 on Ubuntu 14.04
-if [ "`pgrep docker`" == "" ]; then
-	echo "Docker daemon is not running. Cannot continue."
-	exit 1
-fi
-
-# Check docker-compose is available and returns something when asking for version
-if [ ! -f /usr/local/bin/docker-compose ] || [ "`docker-compose --version`" == "" ]; then
-	echo "Docker-compose is not available. Cannot continue."
-	exit 1
-fi
-
-echo "All required services are available."
-}
 
 # Check to have (or create) a Docker network to allow communications among containers
 function docker_network {
@@ -434,13 +443,6 @@ function volumes_for_cernbox {
 echo ""
 echo "Initialize Docker volume for CERNBox..."
 docker volume inspect $CERNBOX_DB >/dev/null 2>&1 || docker volume create --name $CERNBOX_DB
-}
-
-# Create Environment file with variables defined above
-function create_env_file {
-echo ""
-echo "Creating environment file..."
-envsubst < env.template > .env
 }
 
 # Set locks to control dependencies and execution order
