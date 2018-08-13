@@ -15,6 +15,7 @@ need_root
 #check_required_services_are_available
 #warn_about_software_requirements
 #warn_about_interfence_eos_cvmfs
+create_env_file
 
 # Clean-Up
 check_single_user_container_running "start"
@@ -27,14 +28,14 @@ docker_network
 volumes_for_eos
 volumes_for_ldap
 volumes_for_cernbox
-if check_override_certificates; then
-	copy_override_certificates
-fi
 #fetch_singleuser_notebook_image
 #fetch_system_component_images
 #check_to_have_all_images
 check_ports_availability
 set_the_locks
+if check_override_certificates; then
+  copy_override_certificates
+fi
 
 
 # Run via Docker Compose

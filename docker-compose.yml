@@ -10,7 +10,7 @@ services:
     image: gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0.2
     container_name: ldap
     hostname: ldap
-    #domainname: sciencebox
+    #domainname: demonet
     volumes:
       - ${LDAP_DB}:/var/lib/ldap
       - ${LDAP_CF}:/etc/ldap/slapd.d
@@ -33,6 +33,7 @@ services:
 
 
   #--- EOS Storage ---#
+  # EOS Server: One headnote (MGM - namespace + management), one message queue (MQ), four storage servers (FST)
   eos-mgm:
     image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.8
     container_name: eos-mgm
@@ -129,6 +130,7 @@ services:
 
 
   #--- CERNBox ---#
+  # Web User Interface (httpd, php, sqlite)
   cernbox:
     image: gitlab-registry.cern.ch/cernbox/boxedhub/cernbox:v0.9
     container_name: cernbox
@@ -139,13 +141,8 @@ services:
       - ${CERNBOX_DB}:/var/www/html/cernbox/data
     env_file:
       - .env
-    environment:
-      CERNBOXGATEWAY_HOSTNAME: ${BOX_HOSTNAME}
-      EOS_GATEWAY_SELF_REGISTRATION: "true"
-      EOS_GATEWAY_AUTH: "unix"
-      EOS_QUOTAADMIN_SELF_REGISTRATION: "true"
-      DATABASE_BACKEND: "sqlite"
 
+  # Nginx gateway
   cernboxgateway:
     image: gitlab-registry.cern.ch/cernbox/boxedhub/cernboxgateway:v0.8
     container_name: cernboxgateway
@@ -158,39 +155,22 @@ services:
       - ${HOST_FOLDER}:${HOST_FOLDER}
     env_file:
       - .env
-    environment:
-      HOSTNAME: ${BOX_HOSTNAME}
-      OWNCLOUD_BACKEND: "cernbox.demonet"
-      OWNCLOUD_BACKEND_PORT: ${HTTPS_PORT}
-      SWAN_BACKEND: ${BOX_HOSTNAME}
-      SWAN_BACKEND_PORT: ${SWAN_HTTPS_PORT}
-      WEBDAV_CLIENT_CERT_PORT: ${WEBDAV_CLIENT_CERT_PORT}
-      EOS_GATEWAY_SELF_REGISTRATION: "true"
-      EOS_GATEWAY_AUTH: "https"
-      ESCAPE_LANDING_PAGE: "false"
-      AUTH_TYPE: "local"
-      ADMINS_LIST: "dummy_admin"
 
 
   #--- SWAN ---#
+  # Jupyterhub: User authentication and session management
   jupyterhub:
     image: gitlab-registry.cern.ch/cernbox/boxedhub/jupyterhub:v0.9
     container_name: jupyterhub
     ports:
-      - ${SWAN_HTTPS_PORT}:${HTTPS_PORT}
+      - ${SWAN_HTTPS_PORT}:443
     volumes:
       - ${HOST_FOLDER}:${HOST_FOLDER}
       - /var/run/docker.sock:/var/run/docker.sock:rw
     env_file:
       - .env
-    environment:
-      HOSTNAME: ${BOX_HOSTNAME}
-      DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME}
-      CONTAINER_IMAGE: "cernphsft/systemuser:v2.11"
-      AUTH_TYPE: "local"
-      EOS_FOLDER: ${EOS_FOLDER}
-      CVMFS_FOLDER: ${CVMFS_FOLDER}
 
+  # Cern VM FileSystem: Access to scientific libraries via the WLCG
   cvmfs:
     image: gitlab-registry.cern.ch/cernbox/boxedhub/cvmfs:v0.5
     container_name: cvmfs
@@ -204,11 +184,8 @@ services:
       - ${CVMFS_FOLDER}:/cvmfs:shared
     env_file:
       - .env
-    environment:
-      CVMFS_UPSTREAM_CONNECTION: "direct"
-      SOFTWARE_STACK: "LCG_91"
-      PLATFORM: "x86_64-slc6-gcc62-opt"
 
+  # EOS-Fuse: Access to EOS storage (same as CERNBox)
   eos-fuse:
     image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-fuse:v0.6
     container_name: eos-fuse
@@ -227,9 +204,6 @@ services:
       - ${EOS_FOLDER}:/eos:shared
     env_file:
       - .env
-    environment:
-      EOS_GATEWAY_SELF_REGISTRATION: "true"
-      EOS_GATEWAY_AUTH: "unix"
 
 
 

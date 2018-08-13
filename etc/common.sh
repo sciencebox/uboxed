@@ -3,12 +3,8 @@
 
 
 #--- Global Settings ---#
-# Software version
-#TODO: Pin Docker version
-export DOCKERCOMPOSE_VERSION="1.15.0"	# Since 2017-08-08
-
-# Host parameters
-export BOX_HOSTNAME=`hostname --fqdn`
+# Host network parameters
+export HOSTNAME=`hostname --fqdn`
 export HTTP_PORT=80
 export HTTPS_PORT=443
 export SWAN_HTTPS_PORT=8443
@@ -20,6 +16,9 @@ export EOS_FOLDER=$HOST_FOLDER"/eos_mount"
 export CVMFS_FOLDER=$HOST_FOLDER"/cvmfs_mount"
 export CERTS_FOLDER=$HOST_FOLDER"/certs"
 WARNING_FILE=$HOST_FOLDER"/DO_NOT_WRITE_ANY_FILE_HERE"
+
+# Single-user notebook image
+export NOTEBOOK_IMAGE="cernphsft/systemuser:v2.11"
 
 # Docker network
 export DOCKER_NETWORK_NAME="demonet"
@@ -37,6 +36,13 @@ do
 done
 
 export CERNBOX_DB="cernbox_shares_db"
+
+
+
+
+# Software version
+#TODO: Pin Docker version
+export DOCKERCOMPOSE_VERSION="1.15.0"   # Since 2017-08-08
 
 
 # Docker images
@@ -442,6 +448,13 @@ function volumes_for_cernbox {
 echo ""
 echo "Initialize Docker volume for CERNBox..."
 docker volume inspect $CERNBOX_DB >/dev/null 2>&1 || docker volume create --name $CERNBOX_DB
+}
+
+# Create Environment file with variables defined above
+function create_env_file {
+echo ""
+echo "Creating environment file..."
+envsubst < env.template > .env
 }
 
 # Set locks to control dependencies and execution order
