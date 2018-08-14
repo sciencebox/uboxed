@@ -5,23 +5,24 @@
 set -o errexit # bail out on all errors immediately
 set -x
 
-
-#JH_IMLIST="/test_dockerimagelist.log"
-#JH_VER="/test_dockerversion.log"
-
-JH_USERIMAGE="cernphsft/systemuser"
-JH_USERIMAGE_VER="v2.11"
-
 #docker images > $JH_IMLIST || exit 1
 docker images > /dev/null || exit 1
 docker version --format '{{.Server.Version}}' > /dev/null || exit 1
 docker version --format '{{.Client.Version}}' > /dev/null || exit 1
 
-AVAILABLE_USERIMAGE=`docker images | grep -i $JH_USERIMAGE | grep -i $JH_USERIMAGE_VER | tr -s ' ' | cut -d ' ' -f 1,2 | tr ' ' ':'`
-if [ "$JH_USERIMAGE:$JH_USERIMAGE_VER" == "$AVAILABLE_USERIMAGE" ]; then
-	continue
+if [[ -z $CONTAINER_IMAGE ]];
+then
+  echo "ERROR: Container image not set"
+  echo "Please define CONTAINER_IMAGE="imagename:v0.1""
+  exit 1
+fi
+
+CONTAINER_IMAGE_NAME=`echo $CONTAINER_IMAGE | cut -d ':' -f 1`	# Drop the tag
+AVAILABLE_USERIMAGE=`docker images | grep "^$CONTAINER_IMAGE_NAME" | awk '{print $1":"$2}'`
+if [ "$CONTAINER_IMAGE" == "$AVAILABLE_USERIMAGE" ]; then
+  continue
 else
-	exit 1
+  exit 1
 fi
 
 TEST_NAME="jupyter-test$RANDOM"
