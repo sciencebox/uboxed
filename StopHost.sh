@@ -11,14 +11,14 @@ echo ""
 echo "WARNING: This script will terminate the running services (i.e., EOS, CERNBox, SWAN) and remove Docker containers."
 read -r -p "Do you want to continue [y/N] " response
 case "$response" in
-    [yY])
-        echo "Ok."
-        ;;
-    *)
-        echo "Cannot continue. Exiting..."
-        echo ""
-        exit 1
-        ;;
+  [yY])
+    echo "Ok."
+  ;;
+  *)
+    echo "Nothing left to do. Exiting..."
+    echo ""
+    exit
+  ;;
 esac
 
 
@@ -26,10 +26,7 @@ esac
 echo ""
 echo "Preliminary checks..."
 need_root
-#check_eos_codename
 check_required_services_are_available
-#warn_about_software_requirements
-#warn_about_interfence_eos_cvmfs
 
 # Removing Containers
 check_single_user_container_running "stop"
@@ -38,4 +35,3 @@ cleanup_folders_for_fusemount
 
 # Removing docker network
 docker_network_remove
-

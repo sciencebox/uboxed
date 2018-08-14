@@ -54,7 +54,7 @@ Packaging by: Enrico Bocchi, Hugo Gonzalez Labrador, Jozsef Makai, Jakub T. Mosc
 
  2. Run the dedicated script:
 
-    `./StopBox.sh`
+    `./StopHost.sh`
 
 
 
