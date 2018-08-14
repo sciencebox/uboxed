@@ -1,5 +1,11 @@
+#! /bin/bash
 
-echo setting up the tests...  'logfile: # less test-setup.log'
+export RUN_FOLDER="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"   # This is the folder from where this scripts runs
+
+
+echo "Setting up the tests..."
+echo "This might take some time as a specific Docker image is being built"
+echo "  Logfile: # less test-setup.log"
 
 {
     set -o verbose
@@ -9,12 +15,11 @@ echo setting up the tests...  'logfile: # less test-setup.log'
     set +o verbose
 } > test-setup.log 2>&1
 
-echo
-echo running all tests...   'logfile: # docker exec -it selftest less /selftest.d/test.log'
-echo 
+echo ""
+echo "Done with the Docker image."
+
+echo ""
+echo "Running all tests..."
+echo "  Logfile: # docker exec -it selftest less /selftest.d/test.log"
 
 docker exec -it selftest bash /selftest.d/run_all_tests.sh
-
-
-
-
