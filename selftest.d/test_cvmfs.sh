@@ -10,7 +10,7 @@ cvmfs_config probe || exit 1
 
 # Try to read a file (same path of software for Jupyter Notebooks)
 #CVMFS_TEST="/cvmfs/sft.cern.ch/lcg/views/LCG_88/x86_64-slc6-gcc49-opt/setup.sh"
-CVMFS_TEST="/cvmfs/sft.cern.ch/lcg/views/LCG_88/x86_64-slc6-gcc62-opt/setup.sh"
+CVMFS_TEST="/cvmfs/sft.cern.ch/lcg/mapfile.txt"
 cat $CVMFS_TEST > /dev/null || exit 1
 
 ### Ping CVMFS repository
