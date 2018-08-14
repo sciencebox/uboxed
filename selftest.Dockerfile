@@ -23,7 +23,8 @@ RUN wget -q https://get.docker.com -O /tmp/getdocker.sh && \
 
 
 # ----- Copy the test scripts ----- #
-COPY selftest.d /selftest.d
+ADD ./.env /selftest.d/.env
+ADD selftest.d /selftest.d
 
 CMD ["/bin/bash"]
 
