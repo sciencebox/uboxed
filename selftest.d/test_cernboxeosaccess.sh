@@ -5,7 +5,7 @@
 set -o errexit # bail out on all errors immediately
 set -x
 
-export EOS_MGM_URL=root://eos-mgm.demonet
+export EOS_MGM_URL=root://$EOS_MGM_ALIAS
 
 dd if=/dev/zero of=/tmp/largefile256.dat bs=1024 count=250
 dd if=/dev/zero of=/tmp/largefile512.dat bs=1024 count=500
@@ -15,12 +15,20 @@ dd if=/dev/zero of=/tmp/largefile10240.dat bs=1024 count=10000
 
 FILES="/etc/passwd /tmp/largefile256.dat /tmp/largefile512.dat /tmp/largefile1024.dat /tmp/largefile10240.dat"
 
+# If the home folder of the user does not exist, create it!
+if ! eos ls -ld /eos/docker/user/u/user0/ ; then
+    sh /var/www/html/cernbox/cernbox_scripts/homedirscript.sh ${EOS_MGM_URL} ${EOS_PREFIX} ${EOS_RECYCLEDIR} user0
+fi
+
+# If the autotest folder is already there, remove it!
 if eos ls -ld /eos/docker/user/u/user0/autotest; then 
     eos -r user0 1000 rm -r /eos/docker/user/u/user0/autotest
 fi
 
-eos -r user0 1000 mkdir /eos/docker/user/u/user0/autotest
+# Create the autotest folder
+eos -r user0 1000 mkdir -p /eos/docker/user/u/user0/autotest
 
+# Run tests with files
 for ff in $FILES; do
 
     f=`basename $ff`
