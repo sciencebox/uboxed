@@ -10,7 +10,7 @@ set -x
 #JH_VER="/test_dockerversion.log"
 
 JH_USERIMAGE="cernphsft/systemuser"
-JH_USERIMAGE_VER="v2.10"
+JH_USERIMAGE_VER="v2.11"
 
 #docker images > $JH_IMLIST || exit 1
 docker images > /dev/null || exit 1
