@@ -6,20 +6,20 @@
 
 
 # ----- Use CERN cc7 as base image for EOS|FUSE ----- #
-FROM cern/cc7-base:20170920
+FROM cern/cc7-base:20180516
 
 MAINTAINER Enrico Bocchi <enrico.bocchi@cern.ch>
 
 
 # ----- Install the required software ----- #
-RUN yum -y install wget
+RUN yum -y install \
+	wget \
+	nmap \
+	less
+
 RUN wget -q https://get.docker.com -O /tmp/getdocker.sh && \
         bash /tmp/getdocker.sh && \
         rm /tmp/getdocker.sh
-
-RUN yum -y install \
-	less \
-	nmap
 
 
 # ----- Copy the test scripts ----- #
