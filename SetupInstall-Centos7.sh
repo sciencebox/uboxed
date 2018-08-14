@@ -12,7 +12,7 @@ install_software()
     git \
     fuse \
     net-tools \
-    envsubst
+    gettext
 
   echo "Installing docker..."
   yum -y install https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-"$DOCKER_VERSION".ce-1.el7.centos.x86_64.rpm

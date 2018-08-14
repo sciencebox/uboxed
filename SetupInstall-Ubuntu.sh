@@ -12,7 +12,7 @@ install_software()
     git \
     fuse \
     net-tools \
-    envsubst
+    gettext
 
   echo "Installing docker..."
   wget https://download.docker.com/linux/ubuntu/dists/`lsb_release -c -s`/pool/stable/amd64/docker-ce_"$DOCKER_VERSION"~ce-0~ubuntu_amd64.deb -O /tmp/docker-ce.deb
