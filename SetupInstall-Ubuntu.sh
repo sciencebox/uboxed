@@ -20,8 +20,8 @@ install_software()
   rm -f /tmp/docker-ce.deb
 
   echo "Installing docker-compose..."
-  wget https://github.com/docker/compose/releases/download/"$DOCKERCOMPOSE_VERSION"/docker-compose-`uname -s`-`uname -m` -O /usr/local/bin/docker-compose
-  chmod +x /usr/local/bin/docker-compose
+  wget https://github.com/docker/compose/releases/download/"$DOCKERCOMPOSE_VERSION"/docker-compose-`uname -s`-`uname -m` -O /bin/docker-comnpose
+  chmod +x /bin/docker-compose
 
   echo "Starting docker daemon..."
   service docker start
