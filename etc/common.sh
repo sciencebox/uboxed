@@ -73,7 +73,7 @@ if [ "`pgrep docker`" == "" ]; then
 fi
 
 # Check docker-compose is available and returns something when asking for version
-if [ ! -f /usr/local/bin/docker-compose ] || [ "`docker-compose --version`" == "" ]; then
+if [ ! -f /bin/docker-compose ] || [ "`docker-compose --version`" == "" ]; then
   echo "Docker-compose is not available. Cannot continue."
   exit 1
 fi
