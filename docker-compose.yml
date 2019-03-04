@@ -132,7 +132,7 @@ services:
   #--- CERNBox ---#
   # Web User Interface (httpd, php, sqlite)
   cernbox:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernbox:webng
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernbox:update_sciencebox
     container_name: cernbox
     hostname: cernbox
     domainname: demonet
@@ -142,7 +142,7 @@ services:
       - .env
 
   cernboxmysql:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernboxmysql:webng
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernboxmysql:update_sciencebox
     container_name: cernboxmysql
     hostname: cernboxmysql
     domainname: demonet
@@ -154,7 +154,7 @@ services:
 
   # Nginx gateway
   cernboxgateway:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernboxgateway:v0.8
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernboxgateway:update_sciencebox
     container_name: cernboxgateway
     hostname: cernboxgateway
     domainname: demonet
@@ -170,7 +170,7 @@ services:
   #--- SWAN ---#
   # Jupyterhub: User authentication and session management
   jupyterhub:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/jupyterhub:v0.9
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/jupyterhub:update_sciencebox
     container_name: jupyterhub
     ports:
       - ${SWAN_HTTPS_PORT}:443
