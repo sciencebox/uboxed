@@ -197,7 +197,7 @@ services:
 
   # EOS-Fuse: Access to EOS storage (same as CERNBox)
   eos-fuse:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-fuse:v0.6
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-fuse:v0.7
     container_name: eos-fuse
     hostname: eos-fuse
     domainname: demonet
