@@ -23,7 +23,7 @@ initialize_folders_for_fusemount
 docker_network
 volumes_for_ldap
 volumes_for_eos
-volumes_for_cernbox
+volumes_for_mysql
 fetch_singleuser_notebook_image
 fetch_sciencebox_images
 check_to_have_all_images

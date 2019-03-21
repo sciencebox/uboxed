@@ -35,7 +35,7 @@ do
   export EOS_FST_USERDATA_$i="eos-fst_userdata_"$i
 done
 
-export CERNBOX_DB="cernbox_shares_db"
+export CERNBOX_MYSQL="cernbox_mysql"
 
 # Template file
 ENV_TEMPLATE="env.template"
@@ -270,10 +270,10 @@ done
 }
 
 # Initialize volumes from CERNBox --> Make sharing settings persistent
-function volumes_for_cernbox {
+function volumes_for_mysql {
 echo ""
 echo "Initialize Docker volume for CERNBox..."
-docker volume inspect $CERNBOX_DB >/dev/null 2>&1 || docker volume create --name $CERNBOX_DB
+docker volume inspect $CERNBOX_MYSQL >/dev/null 2>&1 || docker volume create --name $CERNBOX_MYSQL
 }
 
 # Pull single-user notebook image

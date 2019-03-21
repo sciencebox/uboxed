@@ -132,13 +132,23 @@ services:
   #--- CERNBox ---#
   # Web User Interface (httpd, php, sqlite)
   cernbox:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernbox:v0.9
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernbox:webng
     container_name: cernbox
     hostname: cernbox
     domainname: demonet
     volumes:
       - ${HOST_FOLDER}:${HOST_FOLDER}
-      - ${CERNBOX_DB}:/var/www/html/cernbox/data
+    env_file:
+      - .env
+
+  cernboxmysql:
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernboxmysql:webng
+    container_name: cernboxmysql
+    hostname: cernboxmysql
+    domainname: demonet
+    volumes:
+      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${CERNBOX_MYSQL}:/var/lib/mysql
     env_file:
       - .env
 
@@ -264,7 +274,7 @@ volumes:
       name: ${EOS_MQ}
 
   # CERNBox
-  cernbox_shares_db:
+  cernbox_mysql:
     external:
-      name: ${CERNBOX_DB}
+      name: ${CERNBOX_MYSQL}
 
