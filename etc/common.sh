@@ -13,6 +13,7 @@ export WEBDAV_CLIENT_CERT_PORT=4443
 # Temporary work folder on the host
 export HOST_FOLDER="/tmp/sciencebox"
 export EOS_FOLDER=$HOST_FOLDER"/eos_mount"
+export EOS_MOUNT=$EOS_FOLDER"/docker"
 export CVMFS_FOLDER=$HOST_FOLDER"/cvmfs_mount"
 export CERTS_FOLDER=$HOST_FOLDER"/certs"
 WARNING_FILE=$HOST_FOLDER"/DO_NOT_WRITE_ANY_FILE_HERE"
@@ -194,8 +195,10 @@ then
   # Unmount and remove EOS
   while [[ ! -z `mount -l | grep $EOS_FOLDER | head -n 1` ]];
   do
+    fusermount -u $EOS_MOUNT
     fusermount -u $EOS_FOLDER
   done
+  rmdir $EOS_MOUNT
   rmdir $EOS_FOLDER
 
   # Remove certificates (making sure to have the folder first)
