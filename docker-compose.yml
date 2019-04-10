@@ -35,7 +35,7 @@ services:
   #--- EOS Storage ---#
   # EOS Server: One headnote (MGM - namespace + management), one message queue (MQ), four storage servers (FST)
   eos-mgm:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.8
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.9
     container_name: eos-mgm
     hostname: eos-mgm
     domainname: demonet
@@ -50,7 +50,7 @@ services:
       EOS_ROLE: "mgm"
 
   eos-mq:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.8
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.9
     container_name: eos-mq
     hostname: eos-mq
     domainname: demonet
@@ -65,7 +65,7 @@ services:
       EOS_ROLE: "mq"
 
   eos-fst1:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.8
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.9
     container_name: eos-fst1
     hostname: eos-fst1
     domainname: demonet
@@ -81,7 +81,7 @@ services:
       EOS_ROLE: "fst"
 
   eos-fst2:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.8
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.9
     container_name: eos-fst2
     hostname: eos-fst2
     domainname: demonet
@@ -97,7 +97,7 @@ services:
       EOS_ROLE: "fst"
 
   eos-fst3:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.8
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.9
     container_name: eos-fst3
     hostname: eos-fst3
     domainname: demonet
@@ -113,7 +113,7 @@ services:
       EOS_ROLE: "fst"
 
   eos-fst4:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.8
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-storage:v0.9
     container_name: eos-fst4
     hostname: eos-fst4
     domainname: demonet
