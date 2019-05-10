@@ -170,7 +170,7 @@ services:
   #--- SWAN ---#
   # Jupyterhub: User authentication and session management
   jupyterhub:
-    image: gitlab-registry.cern.ch/swan/docker-images/jupyterhub:v1.1
+    image: gitlab-registry.cern.ch/swan/docker-images/jupyterhub:v1.4
     container_name: jupyterhub
     ports:
       - ${SWAN_HTTPS_PORT}:443
@@ -197,7 +197,7 @@ services:
 
   # EOS-Fuse: Access to EOS storage (same as CERNBox)
   eos-fuse:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-fuse:v0.7
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/eos-fuse:v0.8
     container_name: eos-fuse
     hostname: eos-fuse
     domainname: demonet
