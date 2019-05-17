@@ -170,7 +170,7 @@ services:
   #--- SWAN ---#
   # Jupyterhub: User authentication and session management
   jupyterhub:
-    image: gitlab-registry.cern.ch/swan/docker-images/jupyterhub:v1.4
+    image: gitlab-registry.cern.ch/swan/docker-images/jupyterhub:v1.5
     container_name: jupyterhub
     ports:
       - ${SWAN_HTTPS_PORT}:443
