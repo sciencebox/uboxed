@@ -4,6 +4,22 @@
 source etc/common.sh
 
 
+# ----- Install the required gpu software on the host ----- #
+install_gpu_software()
+{
+  echo "Installing nvidia-docker2..."
+  # Add the package repositories
+  distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+  curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.repo | \
+  sudo tee /etc/yum.repos.d/nvidia-docker.repo
+
+  # Install nvidia-docker2 and reload the Docker daemon configuration
+  sudo yum install -y nvidia-docker2
+  
+  echo "Checking NVidia driver"
+  check_nvidia_driver
+}
+
 # ----- Install the required software on the host ----- #
 install_software()
 {
@@ -29,6 +45,21 @@ install_software()
 
 # Check to be root
 need_root
+
+# Raise warning about GPU software installation
+warn_about_gpu_software_requirements
+
+echo ""
+read -r -p "Do you want to proceed with the gpu software installation [y/N] " response
+case "$response" in
+  [yY]) 
+    echo "Installing required gpu software..."
+    install_gpu_software
+  ;;
+  *)
+    echo "Exiting..."
+  ;;
+esac
 
 # Raise warning about software installation
 warn_about_software_requirements

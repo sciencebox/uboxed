@@ -95,6 +95,14 @@ echo -e "\t- docker (version $DOCKER_VERSION)"
 echo -e "\t- docker-compose (version $DOCKERCOMPOSE_VERSION)"
 }
 
+# Print a warning about the required software on the host for GPU
+function warn_about_gpu_software_requirements {
+echo ""
+echo "The following software will be installed or updated for GPU support:"
+echo -e "\t- nvidia-docker2"
+}
+
+
 # Print a warning about potential interference with EOS || CVMFS processes running on the host
 function warn_about_interfence_eos_cvmfs {
 echo ""
@@ -415,4 +423,20 @@ else
     return 0
   fi
 fi
+}
+
+### Check Nvidia kernel driver
+check_nvidia_driver()
+{
+    echo "Checking if the kernel driver is loaded "
+    if lsmod | grep "nvidia" &> /dev/null ; then
+      echo "==========================================================="
+      echo "NVidia kernel driver is loaded!"
+      echo "==========================================================="
+    else
+      echo "==========================================================="
+      echo "WARNING: NVidia kernel driver is not loaded!"
+      echo "GPU support will not work, configure your GPU driver first."
+      echo "==========================================================="
+    fi
 }
