@@ -8,6 +8,7 @@ source etc/common.sh
 install_gpu_software()
 {
   echo "Installing nvidia-docker2..."
+  yum install -y runc
   yum install -y https://nvidia.github.io/nvidia-container-runtime/centos7/x86_64/nvidia-container-runtime-"$NVIDIA_CONTAINER_RUNTIME_VERSION"-1.x86_64.rpm \
                  https://nvidia.github.io/libnvidia-container/centos7/x86_64/libnvidia-container1-"$LIBNVIDIA_CONTAINER_VERSION"-1.x86_64.rpm \
                  https://nvidia.github.io/libnvidia-container/centos7/x86_64/libnvidia-container-tools-"$LIBNVIDIA_CONTAINER_VERSION"-1.x86_64.rpm \
