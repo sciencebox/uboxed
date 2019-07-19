@@ -104,6 +104,7 @@ echo -e "\t- docker-compose (version $DOCKERCOMPOSE_VERSION)"
 function warn_about_gpu_software_requirements {
 echo ""
 echo "The following software will be installed or updated for GPU support:"
+echo -e "\t- runc"
 echo -e "\t- nvidia-docker2"
 echo -e "\t- nvidia-container-runtime"
 echo -e "\t- libnvidia-container1"
