@@ -63,7 +63,7 @@ case "$response" in
     install_gpu_software
   ;;
   *)
-    echo "Exiting..."
+    echo "Continuing without GPU support"
   ;;
 esac
 
