@@ -19,7 +19,7 @@ export CERTS_FOLDER=$HOST_FOLDER"/certs"
 WARNING_FILE=$HOST_FOLDER"/DO_NOT_WRITE_ANY_FILE_HERE"
 
 # Single-user notebook image
-export NOTEBOOK_IMAGE="gitlab-registry.cern.ch/swan/docker-images/systemuser:v5.0.2"
+export NOTEBOOK_IMAGE="gitlab-registry.cern.ch/swan/docker-images/systemuser:v5.1.1"
 
 # Docker network
 export DOCKER_NETWORK_NAME="demonet"
