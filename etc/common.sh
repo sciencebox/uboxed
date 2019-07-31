@@ -45,8 +45,13 @@ ENV_TEMPLATE="env.template"
 DOCKERCOMPOSE_FILE="docker-compose.yml"
 
 # Software version
-export DOCKER_VERSION="18.03.0"		# Since 2018-08-13
+export DOCKER_VERSION="18.06.3"	        # Since 2019-02-19 (Required for GPU support)
 export DOCKERCOMPOSE_VERSION="1.20.0"   # Since 2018-08-13
+export NVIDIA_DOCKER_VERSION="2.1.0"  
+export LIBNVIDIA_CONTAINER_VERSION="1.0.2"
+export NVIDIA_CONTAINER_RUNTIME_VERSION="3.0.0"
+export NVIDIA_CONTAINER_RUNTIME_HOOK_VERSION="1.4.0"
+
 
 # Lock files
 LOCK_FILES="eos-mgm-lock eos-fst-lock eos-fuse-lock cernbox-lock cernboxgateway-lock usercontrol-lock"
@@ -94,6 +99,19 @@ echo -e "\t- envsubst"
 echo -e "\t- docker (version $DOCKER_VERSION)"
 echo -e "\t- docker-compose (version $DOCKERCOMPOSE_VERSION)"
 }
+
+# Print a warning about the required software on the host for GPU
+function warn_about_gpu_software_requirements {
+echo ""
+echo "The following software will be installed or updated for GPU support:"
+echo -e "\t- runc"
+echo -e "\t- nvidia-docker2"
+echo -e "\t- nvidia-container-runtime"
+echo -e "\t- libnvidia-container1"
+echo -e "\t- libnvidia-container-tools"
+echo -e "\t- nvidia-container-runtime-hook"
+}
+
 
 # Print a warning about potential interference with EOS || CVMFS processes running on the host
 function warn_about_interfence_eos_cvmfs {
@@ -415,4 +433,20 @@ else
     return 0
   fi
 fi
+}
+
+### Check Nvidia kernel driver
+check_nvidia_driver()
+{
+    echo "Checking if the kernel driver is loaded "
+    if lsmod | grep "nvidia" &> /dev/null ; then
+      echo "==========================================================="
+      echo "NVidia kernel driver is loaded!"
+      echo "==========================================================="
+    else
+      echo "==========================================================="
+      echo "WARNING: NVidia kernel driver is not loaded!"
+      echo "GPU support will not work, configure your GPU driver first."
+      echo "==========================================================="
+    fi
 }
