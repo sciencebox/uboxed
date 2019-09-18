@@ -132,7 +132,7 @@ services:
   #--- CERNBox ---#
   # Web User Interface (httpd, php, sqlite)
   cernbox:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernbox:v1.2
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernbox:v1.3
     container_name: cernbox
     hostname: cernbox
     domainname: demonet
@@ -154,7 +154,7 @@ services:
 
   # Nginx gateway
   cernboxgateway:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernboxgateway:v1.0
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/cernboxgateway:v1.1
     container_name: cernboxgateway
     hostname: cernboxgateway
     domainname: demonet
