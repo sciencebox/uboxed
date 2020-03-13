@@ -7,7 +7,7 @@ services:
   #--- LDAP ---#
   # Local user database. All services have a unified view on user accounts.
   ldap:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0.2
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0.3
     container_name: ldap
     hostname: ldap
     #domainname: demonet
@@ -19,7 +19,7 @@ services:
 
   # Add demo users on the LDAP server
   ldap-ldapadd:
-    image: gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0.2
+    image: gitlab-registry.cern.ch/cernbox/boxedhub/ldap:v0.3
     container_name: ldap-add
     depends_on:
       - ldap
