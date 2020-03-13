@@ -26,7 +26,7 @@ services:
     links:
       - ldap
     volumes:
-      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${HOST_FOLDER}:${HOST_FOLDER}:z
     env_file:
       - .env
     entrypoint: bash /root/addusers.sh
@@ -42,7 +42,7 @@ services:
     cap_add:
       - SYS_PTRACE
     volumes:
-      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${HOST_FOLDER}:${HOST_FOLDER}:z
       - ${EOS_MGM}:/var/eos
     env_file:
       - .env
@@ -57,7 +57,7 @@ services:
     cap_add:
       - SYS_PTRACE
     volumes:
-      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${HOST_FOLDER}:${HOST_FOLDER}:z
       - ${EOS_MQ}:/var/eos
     env_file:
       - .env
@@ -72,7 +72,7 @@ services:
     cap_add:
       - SYS_PTRACE
     volumes:
-      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${HOST_FOLDER}:${HOST_FOLDER}:z
       - ${EOS_FST_1}:/var/eos
       - ${EOS_FST_USERDATA_1}:/${FST_MOUNTPOINT}
     env_file:
@@ -88,7 +88,7 @@ services:
     cap_add:
       - SYS_PTRACE
     volumes:
-      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${HOST_FOLDER}:${HOST_FOLDER}:z
       - ${EOS_FST_2}:/var/eos
       - ${EOS_FST_USERDATA_2}:/${FST_MOUNTPOINT}
     env_file:
@@ -104,7 +104,7 @@ services:
     cap_add:
       - SYS_PTRACE
     volumes:
-      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${HOST_FOLDER}:${HOST_FOLDER}:z
       - ${EOS_FST_3}:/var/eos
       - ${EOS_FST_USERDATA_3}:/${FST_MOUNTPOINT}
     env_file:
@@ -120,7 +120,7 @@ services:
     cap_add:
       - SYS_PTRACE
     volumes:
-      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${HOST_FOLDER}:${HOST_FOLDER}:z
       - ${EOS_FST_4}:/var/eos
       - ${EOS_FST_USERDATA_4}:/${FST_MOUNTPOINT}
     env_file:
@@ -137,7 +137,7 @@ services:
     hostname: cernbox
     domainname: demonet
     volumes:
-      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${HOST_FOLDER}:${HOST_FOLDER}:z
     env_file:
       - .env
 
@@ -147,7 +147,7 @@ services:
     hostname: cernboxmysql
     domainname: demonet
     volumes:
-      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${HOST_FOLDER}:${HOST_FOLDER}:z
       - ${CERNBOX_MYSQL}:/var/lib/mysql
     env_file:
       - .env
@@ -162,7 +162,7 @@ services:
       - ${HTTP_PORT}:80
       - ${HTTPS_PORT}:443
     volumes:
-      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${HOST_FOLDER}:${HOST_FOLDER}:z
     env_file:
       - .env
 
@@ -175,7 +175,7 @@ services:
     ports:
       - ${SWAN_HTTPS_PORT}:443
     volumes:
-      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${HOST_FOLDER}:${HOST_FOLDER}:z
       - /var/run/docker.sock:/var/run/docker.sock:rw
     env_file:
       - .env
@@ -209,7 +209,7 @@ services:
     security_opt:
       - apparmor=unconfined
     volumes:
-      - ${HOST_FOLDER}:${HOST_FOLDER}
+      - ${HOST_FOLDER}:${HOST_FOLDER}:z
       - /sys/fs/cgroup
       - ${EOS_FOLDER}:/eos:shared
     env_file:
