@@ -3,7 +3,7 @@
 
 -----
 
-https://cernbox.cern.ch/cernbox/doc/boxed
+http://sciencebox.web.cern.ch/sciencebox/
 
 Self-contained, containerized demo for next-generation cloud storage and computing services for scientific and general-purpose use:
 
